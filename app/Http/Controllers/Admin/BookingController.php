@@ -13,59 +13,71 @@ use Illuminate\Support\Facades\Mail;
 class BookingController extends Controller
 {
     public function index()
-    {
-        $orders = Order::with(['package', 'addonItems'])->get();
+{
+    $orders = Order::with(['package', 'addonItems', 'ItemsList.item'])->get();
+    
+    $bookings = $orders->map(function($order) {
         
-        $bookings = $orders->map(function($order) {
-            
-            $bookingId = 'BK-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
-            
-            $nameParts = explode(' ', $order->customer_name);
-            $initials = '';
-            foreach ($nameParts as $part) {
-                if (!empty($part)) {
-                    $initials .= strtoupper(substr($part, 0, 1));
-                }
-            }
-            $initials = substr($initials, 0, 2);
-            
-            $colors = ['#7c3aed', '#0891b2', '#be185d', '#d97706', '#059669', '#dc2626'];
-            $color = $colors[$order->id % count($colors)];
-            
-            $packageName = $order->package ? $order->package->package_name : 'Custom Package';
-            
-            $menu = [];
-            if ($order->addonItems && $order->addonItems->count() > 0) {
-                foreach ($order->addonItems as $addon) {
-                    $menu[] = $addon->item_name;
-                }
-            }
-            
-            $formattedAmount = '$ ' . number_format($order->grand_total, 0);
-            
-            return [
-                'id' => $bookingId,
-                'client' => $order->customer_name,
-                'email' => $order->email,
-                'initials' => $initials,
-                'color' => $color,
-                'type' => $packageName,            
-                'date' => $order->event_date,
-                'time' => $order->event_time,
-                'guests' => $order->guest_count,
-                'venue' => $order->delivery_address,
-                'amount' => $formattedAmount,
-                'amountRaw' => (int) $order->grand_total,
-                'status' => $order->order_status,
-                'contact' => $order->customer_phone,
-                'bookedOn' => $order->created_at->format('Y-m-d'),
-                'notes' => $order->notes,
-                'menu' => $menu
-            ];
-        });
+        $bookingId = 'BK-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
         
-        return view('admin.dashboard', compact('bookings'));
-    }
+        $nameParts = explode(' ', $order->customer_name);
+        $initials = '';
+        foreach ($nameParts as $part) {
+            if (!empty($part)) {
+                $initials .= strtoupper(substr($part, 0, 1));
+            }
+        }
+        $initials = substr($initials, 0, 2);
+        
+        $colors = ['#7c3aed', '#0891b2', '#be185d', '#d97706', '#059669', '#dc2626'];
+        $color = $colors[$order->id % count($colors)];
+        
+        $packageName = $order->package ? $order->package->package_name : 'Custom Package';
+        
+        $menu = [];
+        if ($order->addonItems && $order->addonItems->count() > 0) {
+            foreach ($order->addonItems as $addon) {
+                $menu[] = $addon->item_name;
+            }
+        }
+        $menu1 = [];
+        foreach ($order->ItemsList as $sel) {
+            if ($sel->item) {
+                $menu1[] = $sel->item->item_name;
+            }
+        }
+//dd($menu1);
+
+
+        
+        $formattedAmount = '$ ' . number_format($order->grand_total, 0);
+        
+        return [
+            'id'               => $bookingId,
+            'client'           => $order->customer_name,
+            'email'            => $order->email,
+            'initials'         => $initials,
+            'color'            => $color,
+            'type'             => $packageName,            
+            'date'             => $order->event_date,
+            'time'             => $order->event_time,
+            'guests'           => $order->guest_count,
+            'venue'            => $order->delivery_address,
+            'amount'           => $formattedAmount,
+            'amountRaw'        => (int) $order->grand_total,
+            'status'           => $order->order_status,
+            'contact'          => $order->customer_phone,
+            'bookedOn'         => $order->created_at->format('Y-m-d'),
+            'notes'            => $order->notes,
+            'menu'             => $menu,
+            'menu1'            => $menu1,
+            'advance_amount'   => (float) $order->advance_amount,      
+            'remaining_amount' => (float) $order->remaining_amount, 
+        ];
+    });
+    
+    return view('admin.dashboard', compact('bookings'));
+}
      public function create()
     {
         
@@ -112,8 +124,8 @@ public function updateStatus(Request $request)
         // Extract numeric ID from BK-0001 format
         $numericId = (int) str_replace('BK-', '', $request->booking_id);
         
-        // Find the order - THIS GETS ALL ORDER DATA
-        $order = Order::with('package')->find($numericId);  // Load package too
+        // Find the order
+        $order = Order::with('package')->find($numericId);
         
         if (!$order) {
             return response()->json([
@@ -125,15 +137,25 @@ public function updateStatus(Request $request)
         // Save old status and update
         $oldStatus = $order->order_status;
         $order->order_status = $request->status;
+
+        // ADDED — save advance amount when confirming
+        if ($request->has('advance_amount')) {
+            $order->advance_amount   = $request->advance_amount;
+            $order->remaining_amount = $request->remaining_amount;
+        }
+
+        // ADDED — update remaining amount when marking payment done
+        if ($request->has('remaining_amount') && !$request->has('advance_amount')) {
+            $order->remaining_amount = $request->remaining_amount;
+        }
+
         $order->save();
         
         // SEND EMAIL BASED ON STATUS
         if ($request->status == 'Confirmed') {
-            
             Mail::to($order->email)->send(new BookingConfirmedMail($order));
         } 
         else if ($request->status == 'Cancelled') {
-            
             Mail::to($order->email)->send(new BookingCancelledMail($order));
         }
         

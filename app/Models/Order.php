@@ -21,7 +21,9 @@ class Order extends Model
         'addon_total',
         'grand_total',
         'notes',               
-        'order_status'
+        'order_status',
+        'advance_amount',
+        'remaining_amount',
     ];
     public function package()
     {
@@ -32,4 +34,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderAddonItem::class);
     }
+    public function ItemsList()
+    {
+        return $this->hasMany(OrderPackageSelection::class, 'order_id');
+    }
+    
 }

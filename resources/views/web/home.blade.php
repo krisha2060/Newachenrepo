@@ -9,7 +9,7 @@
                 <div class="container">
                     <div class="slide-content">
                         <h1 style="font-weight: 900;"><em>Welcome</em> to<br>NEWA CHEN</h1>
-                        <p>We serve food, harmony, and laughter. Making delicious food and providing a wonderful eating experience. </p>
+                        <p>"A Taste To Remember"</p>
                         <div class="slide-buttons">
                             <a href="#menu" class="btn-underline">View Menus</a>
                         </div>
@@ -20,7 +20,7 @@
                 <div class="container">
                     <div class="slide-content">
                          <h1 style="font-weight: 900;"><em>Welcome</em> to<br>NEWA CHEN</h1>
-                        <p>We serve food, harmony, and laughter. Making delicious food and providing a wonderful eating experience.</p>
+                        <p>"A Taste To Remember"</p>
                         <div class="slide-buttons">
                             <a href="#menu" class="btn-underline">View Menus</a>
                         </div>
@@ -31,7 +31,7 @@
                 <div class="container">
                     <div class="slide-content">
                          <h1 style="font-weight: 900;"><em>Welcome</em> to<br>NEWA CHEN</h1>
-                        <p>We serve food, harmony, and laughter. Making delicious food and providing a wonderful eating experience.</p>
+                        <p>"A Taste To Remember"</p>
                         <div class="slide-buttons">
                             <a href="#menu" class="btn-underline">View Menus</a>
                         </div>
@@ -42,7 +42,7 @@
                 <div class="container">
                     <div class="slide-content">
                          <h1 style="font-weight: 900;"><em>Welcome</em> to<br>NEWA CHEN</h1>
-                        <p>We serve food, harmony, and laughter. Making delicious food and providing a wonderful eating experience.</p>
+                        <p>"A Taste To Remember"</p>
                         <div class="slide-buttons">
                             <a href="#menu" class="btn-underline">View Menus</a>
                         </div>
@@ -53,7 +53,7 @@
                 <div class="container">
                     <div class="slide-content">
                          <h1 style="font-weight: 900;"><em>Welcome</em> to<br>NEWA CHEN</h1>
-                        <p>We serve food, harmony, and laughter. Making delicious food and providing a wonderful eating experience.</p>
+                        <p>"A Taste To Remember"</p>
                         <div class="slide-buttons">
                             <a href="#menu" class="btn-underline">View Menus</a>
                         </div>
@@ -90,12 +90,27 @@
 
         <section class="menu-section" id="menu">
         <div class="container">
-                        
+                   <div class="section-title">
+      <span class="subtitle">Our Menus</span>
+    </div>
+
+    <!-- Sticky pill switcher -->
+    <div class="mn-tab-sticky">
+      <div class="mn-pill-track">
+        <button class="mn-pill active" data-tab="catering">Catering</button>
+        <button class="mn-pill" data-tab="restaurant">Restaurant</button>
+      </div>
+    </div> 
+    
+    
+        <div class="mn-panel" id="tab-catering">
         <div class="mn-catering">
             <div class="mn-catering__header">
                 <span class="subtitle">Catering</span>
                 <h3>Newa Catering Menu</h3>
                 <p>Minimum 15 people &nbsp;·&nbsp; All prices excluding GST</p>
+                <br>
+                <a href="{{ route('reservation') }}" class="btn-underline">Book Catering Now</a>
             </div>
 
             {{-- 4 packages side by side --}}
@@ -144,12 +159,19 @@
                     @endforeach
                 </div>
             </div>
+            
 
         </div>
+</div>
 
+        
+ <div class="mn-panel" id="tab-restaurant" style="display:none">
+     
                 <div class="section-title">
-                            <span class="subtitle">Chef's Recommended</span>
-                            <h2>Selected Menus</h2>
+                   
+                            <span class="subtitle"> <p> "Walk-in dining only · no online booking"</p>Our Restaurant Menu </span>
+                            
+                            
                              <p>Every dish is prepared with authentic recipes, fresh ingredients, and the same care you would find in a Newari home. From comforting classics to festive favourites, our menu is inspired by the culture, celebrations, and memories of Nepal.</p>                </div>
 
                     <div class="menu-grid">
@@ -161,7 +183,7 @@
                     <span style="text-align:center; cursor:pointer; line-height:1;" onclick="lunch.next()">
                         <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
                         <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
-                            Next
+                           Next
                         </span>
 
                     </span>
@@ -285,6 +307,8 @@
                     </div>
                 
                 </div>
+                
+                
 
             <!--<div style="display:flex; justify-content:space-between; align-items:center;">
                 <img src="/images/arrow1.png" alt="Prev" style="cursor:pointer; width:150px;" onclick="prevPage()">
@@ -308,125 +332,113 @@
 
 
             <div class="menu-grid">
-                        <div class="image-grid">
-                            <img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=600&fit=crop" alt="Beverages">
-                            <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=500&fit=crop" alt="Beverages">
-                        </div>
+                <div class="image-grid">
+                    <img src="{{asset('web\images\DSC07189.JPG')}}" alt="Food">                 
+                    <img src="{{asset('web\images\DSC07160.JPG')}}" alt="Food">
+                </div>
 
-                                <div class="menu-carousel" id="drinks-carousel">
-            <div>
-            <h1 style="display:flex; align-items:center; justify-content:space-between;">
-                <span class="menu-column">Drinks</span>
+                <div class="menu-carousel" id="drinks-carousel">
+                    <div>
+                        <h1 style="display:flex; align-items:center; justify-content:space-between;">
+                            <span class="menu-column">Drinks</span>
 
-                    <span style="text-align:center; cursor:pointer; line-height:1;" onclick="drinks.next()">
-                        <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
-                    <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
-                        Next
-                    </span>
-                </span>
-            </h1>
-        </div>
-        <br>
-            <div class="menu-page">
-                <h2>COLD BEVERAGES</h2>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Soft Drinks <h5> (Coke, Fanta, Sprite)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$3</span>
+                                <span style="text-align:center; cursor:pointer; line-height:1;" onclick="drinks.next()">
+                                    <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
+                                <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
+                                Next
+                                </span>
+                            </span>
+                        </h1>
                     </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Mango Lassi <h5> (Apple, Mango, Orange)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$7</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Juice</span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Sparkling Water <h5> (500 ML)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Bottle of Water <h5> (600 ML)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$3</span>
-                    </div>
-                </div>
-                
-                
-                
-            </div>
-
-            <div class="menu-page">
-                <h2>HOT BEVERAGES</h2>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Cardamom Tea <h5> (Coke, Fanta, Sprite)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">House Coffee <h5> (Apple, Mango, Orange)</h5></span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
-                    </div>
-                </div>
-            
-                
-                
-                
-            </div>
-
-            <div class="menu-page">
-                <h2>BEER SELECTION</h2>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Barasinghe Pilsner</span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$10</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Barasinghe 8</span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
-                    </div>
-                </div>
+                    <br>
+                    <div class="menu-page">
+                    <h2>COLD BEVERAGES</h2>
                     <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Nepal Ice</span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$10</span>
+                        <div class="menu-header">
+                            <span class="menu-title">Soft Drinks <h5> (Coke, Fanta, Sprite)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$3</span>
+                        </div>
                     </div>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-header">
-                        <span class="menu-title">Nepal Ice Strong</span>
-                        <div class="menu-dots"></div>
-                        <span class="menu-price">$4</span>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Mango Lassi <h5> (Apple, Mango, Orange)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$7</span>
+                        </div>
                     </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Juice</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Sparkling Water <h5> (500 ML)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Bottle of Water <h5> (600 ML)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$3</span>
+                        </div>
+                    </div>       
                 </div>
-            
-            
-                
-                
-                
-            </div>
+
+                <div class="menu-page">
+                    <h2>HOT BEVERAGES</h2>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Cardamom Tea <h5> (Coke, Fanta, Sprite)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">House Coffee <h5> (Apple, Mango, Orange)</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>   
+                </div>
+
+                <div class="menu-page">
+                    <h2>BEER SELECTION</h2>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Barasinghe Pilsner</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$10</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Barasinghe 8</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>
+                        <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Nepal Ice</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$10</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Nepal Ice Strong</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$4</span>
+                        </div>
+                    </div>     
+                </div>
 
                 <div class="menu-page">
                 <h2>BEER SELECTION</h2>
@@ -457,13 +469,7 @@
                         <div class="menu-dots"></div>
                         <span class="menu-price">$7</span>
                     </div>
-                </div>
-            
-            
-            
-                
-                
-                
+                </div>   
             </div>
 
                 <div class="menu-page">
@@ -500,14 +506,7 @@
                         <div class="menu-dots"></div>
                         <span class="menu-price">$10</span>
                     </div>
-                </div>
-            
-            
-            
-            
-                
-                
-                
+                </div>      
             </div>
 
 
@@ -593,7 +592,7 @@
                     <span style="text-align:center; cursor:pointer; line-height:1;" onclick="dinner.next()">
                         <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
                         <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
-                            Next
+                           Next
                         </span>
                     </span>
                 </h1>
@@ -845,6 +844,7 @@
                             
                             </div>
                         </div>
+                        </div>
 
 
 
@@ -853,21 +853,12 @@
 
                         <div class="center-buttons">
                             <a href="#menu" class="btn-primary">View Full Menu</a>
-                            <a href="{{ route('reservation') }}" class="btn-primary">Book</a>
+                            <a href="{{ route('reservation') }}" class="btn-primary">Book Catering</a>
                         </div>
                     </div>
         </section>
 
-        <section class="testimonials">
-            <div class="container">
-                <div class="testimonial-slider">
-                    <div class="testimonial">
-                        <p class="testimonial-content">"Food is the foundation of true happiness. Lorem ipsum dolor sit amet, consectetuer adipiscing elit aenean commodo."</p>
-
-                    </div>
-                </div>
-            </div>
-        </section>
+       
 
         <section class="block-links">
             <div class="block-link">
@@ -881,15 +872,34 @@
     <a href="{{ route('reservation') }}" class="btn-underline">Book Catering Now</a>
 </div>
             </div>
-            <div class="block-link">
+            <div class="block-link1">
                 <img src="{{asset('web\images\DSC07160.JPG')}}" alt="Reservation">
                 <div class="block-overlay">
-                    <span class="subtitle">Book </span>
+                    <span class="subtitle">Book Catering</span>
                     <h3>Reservation</h3>
                     <p></p>
                     <p><strong>BOOKING</strong><br>Email:<br>newa.catering.sydney@gmail.com</p>
                     <a href="{{ route('reservation') }}" class="btn-underline">Online Booking</a>
                 </div>
             </div>
-        </section>        
+        </section>  
+        
+        
+
+        <script>document.querySelectorAll('.mn-pill').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.mn-pill').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mn-panel').forEach(p => p.style.display = 'none');
+    this.classList.add('active');
+    document.getElementById('tab-' + this.dataset.tab).style.display = 'block';
+
+    // Scroll to the menu section top, offset by navbar height
+    const menuSection = document.getElementById('menu');
+    if (menuSection) {
+      const navbarHeight = document.querySelector('header')?.offsetHeight || 140;
+      const top = menuSection.getBoundingClientRect().top + window.scrollY - navbarHeight;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+  });
+});</script>
 @endsection

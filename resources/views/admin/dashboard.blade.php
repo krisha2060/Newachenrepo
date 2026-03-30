@@ -198,6 +198,7 @@
               <div style="font-size:12px;color:#6c757d;margin-top:2px" id="confirmDialogMsg"></div>
             </div>
           </div>
+          
         </div>
         <div class="ct-modal-footer" style="padding:12px 20px">
           <button class="btn-ct btn-ct-outline" onclick="closeConfirmDialog()">No, Go Back</button>
@@ -230,21 +231,99 @@
             <div class="dg-item"><div class="dg-label">Time</div><div class="dg-value" id="mTime"></div></div>
             <div class="dg-item"><div class="dg-label">Booked On</div><div class="dg-value" id="mBookedOn"></div></div>
           </div>
+
+          <div class="modal-sub-title"><i class="bi bi-egg-fried"></i> Items</div>
+          <div class="menu-tags-wrap" id="mMenu1"></div>
           <div class="modal-sub-title"><i class="bi bi-egg-fried"></i> AddOns</div>
           <div class="menu-tags-wrap" id="mMenu"></div>
           <div class="modal-sub-title"><i class="bi bi-chat-left-text"></i> Special Notes</div>
           <div class="notes-text" id="mNotes"></div>
           <!--<div class="modal-sub-title"><i class="bi bi-clock-history"></i> Activity Timeline</div>
           <div class="ct-timeline" id="mTimeline"></div>-->
+
+
+
+          <!-- ADVANCE PAYMENT PANEL (shown when Confirming) -->
+<div id="advancePanel" style="display:none; margin-top:4px; margin-bottom:4px;">
+  <div class="modal-sub-title"><i class="bi bi-cash-stack"></i> Advance Payment</div>
+  <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:14px 16px;">
+    <label class="dg-label" style="display:block;margin-bottom:6px;color:#166534">
+      Amount Paid in Advance 
+    </label>
+    <input
+      id="advanceAmountInput"
+      class="ct-edit-input"
+      type="number"
+      min="0"
+      placeholder="Enter advance amount received..."
+      style="border-color:#86efac;background:#fff;"
+    />
+    <div style="font-size:11px;color:#6c757d;margin-top:6px">
+      <i class="bi bi-info-circle"></i>
+      Remaining = Total Amount − Advance. Enter 0 if no advance taken.
+    </div>
+  </div>
+
+  <!-- Delivery charge input (shown only for delivery orders) -->
+<div id="deliveryChargeField" style="display:none; margin-top:12px;">
+    <label class="dg-label" style="display:block;margin-bottom:6px;color:#1a6fa8">
+        Delivery Charge to Send via WhatsApp
+    </label>
+    <input
+        id="deliveryChargeInput"
+        class="ct-edit-input"
+        type="number"
+        min="0"
+        placeholder="Enter delivery charge amount..."
+        style="border-color:#93c5fd;background:#fff;"
+    />
+    <div style="font-size:11px;color:#6c757d;margin-top:6px">
+        <i class="bi bi-whatsapp" style="color:#25d366"></i>
+        This amount will be sent to the customer via WhatsApp.
+    </div>
+</div>
+</div>
+
+<!-- REMAINING PAYMENT PANEL (shown when marking Payment Done) -->
+<div id="remainingPanel" style="display:none; margin-top:4px; margin-bottom:4px;">
+  <div class="modal-sub-title"><i class="bi bi-cash-coin"></i> Remaining Payment</div>
+  <div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:9px;padding:14px 16px;">
+    <label class="dg-label" style="display:block;margin-bottom:6px;color:#6d28d9">
+      Amount Being Paid Now 
+    </label>
+    <input
+      id="remainingAmountInput"
+      class="ct-edit-input"
+      type="number"
+      min="0"
+      placeholder="Enter amount received..."
+      style="border-color:#c4b5fd;background:#fff;"
+    />
+    <div id="remainingBreakdown" style="font-size:11px;color:#6c757d;margin-top:6px">
+      <i class="bi bi-info-circle"></i>
+      Edit if partial . 
+    </div>
+  </div>
+</div>
+      
         </div>
-        <div class="ct-modal-footer">
-          <div style="display:flex;gap:8px">
-            <button class="btn-ct btn-ct-danger" id="btnCancelBooking" onclick="actionCancel()"><i class="bi bi-x-circle"></i> Cancel Booking</button>
-           <!-- <button class="btn-ct btn-ct-outline" id="btnEditBooking" onclick="actionEdit()"><i class="bi bi-pencil"></i> Edit</button>-->
-          </div>
-          <button class="btn-ct btn-ct-primary" id="btnConfirmBooking" onclick="actionConfirm()"><i class="bi bi-check-circle"></i> Confirm Booking</button>
-          <button class="btn-ct btn-ct-payment" id="btnPaymentDone" onclick="actionPaymentDone()"><i class="bi bi-cash-coin"></i> Payment Done</button>
-        </div>
+      <div class="ct-modal-footer" style="flex-direction:column;align-items:stretch;gap:10px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px">
+      <button class="btn-ct btn-ct-danger" id="btnCancelBooking" onclick="actionCancel()">
+        <i class="bi bi-x-circle"></i> Cancel Booking
+      </button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ct btn-ct-primary" id="btnConfirmBooking" onclick="actionConfirm()">
+        <i class="bi bi-check-circle"></i> <span id="confirmBtnLabel">Confirm Booking</span>
+      </button>
+      <button class="btn-ct btn-ct-payment" id="btnPaymentDone" onclick="actionPaymentDone()">
+        <i class="bi bi-cash-coin"></i> <span id="paymentBtnLabel">Payment Done</span>
+      </button>
+    </div>
+  </div>
+</div>
       </div>
     </div>
 
@@ -419,6 +498,8 @@
       .btn-ct-danger  { background:#fdecea; border:1px solid #f5a9a3; color:#dc3545; } .btn-ct-danger:hover { background:#fbd5d1; }
       .btn-ct-payment { background:#ede9fe; border:1px solid #c4b5fd; color:#7c3aed; }
       .btn-ct-payment:hover { background:#ddd6fe; }
+      
+
     </style>
 
     @endsection

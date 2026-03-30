@@ -17,8 +17,15 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
     @yield('styles')
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+
+
 <body>
        <div class="pillar pillar-left">
     <img  src="{{asset('web\images\pillarleft2.png')}}" alt="Left Pillar">
@@ -39,7 +46,7 @@
                     <a href="#"><i class="fas fa-map-marker-alt"></i> 5/296 Camden Valley Way, Narellan, NSW, Australia, 2567</a>
                 </div>
                 <div>
-                    <a href="tel:+61 433 551 636"><i class="fas fa-phone"></i> +61 433 551 636</a>
+                    <a href="tel:+61 451 211 959"><i class="fas fa-phone"></i>+61 451 211 959</a>
                     <a href="mailto:newa.catering.sydney@gmail.com"><i class="far fa-envelope"></i> newa.catering.sydney@gmail.com</a>
                 </div>
             </div>
@@ -72,17 +79,13 @@
             <div class="footer-content">
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
                     <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-pinterest"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    
                 </div>
                 <div class="footer-menu">
                     <a href="#about">About</a>
                     <a href="#reservation">Reservation</a>
-                    <a href="#contact">Contact</a>
-                    <a href="#privacy">Privacy</a>
-                    <a href="#policy">Policy</a>
                 </div>
                 <div class="copyright">
                     © Copyright NewaChen.
@@ -95,6 +98,7 @@
 function initCarousel(carouselId) {
     let currentPage = 0;
     const carousel = document.getElementById(carouselId);
+    if (!carousel) return null;
     const pages = carousel.querySelectorAll('.menu-page');
 
     function showPage(index) {
@@ -138,6 +142,7 @@ window.package = initCarousel('package-carousel');
 setInterval(() => {
     const slides = document.querySelectorAll('.slide');
     const current = document.querySelector('.slide.active');
+    if (!current || slides.length === 0) return;
     const next = current.nextElementSibling || slides[0];
     current.classList.remove('active');
     next.classList.add('active');
@@ -155,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.innerHTML = nav.classList.contains('active') 
                 ? '<i class="fas fa-times"></i>' 
                 : '<i class="fas fa-bars"></i>';
+
+                console.log("clicked");
         });
         
         // Close menu when clicking outside
@@ -202,6 +209,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         document.body.classList.remove('page-loaded');
     }, 2000); // After all animations finish
+
+
+
+
+
+    
 });
 
 

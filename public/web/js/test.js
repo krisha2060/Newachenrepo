@@ -318,257 +318,128 @@ function setFilter(f,btn){
 
       // ── MODAL (view) 
 
-// ── PAYMENT FLOW STATE ────────────────────────────────────────
-let confirmStep = 'idle';
-let paymentStep = 'idle';
-
-function resetModalPanels() {
-  confirmStep = 'idle';
-  paymentStep = 'idle';
-  document.getElementById('advancePanel').style.display   = 'none';
-  document.getElementById('remainingPanel').style.display = 'none';
-  document.getElementById('advanceAmountInput').value     = '';
-  document.getElementById('remainingAmountInput').value   = '';
-  document.getElementById('confirmBtnLabel').textContent  = 'Confirm Booking';
-  document.getElementById('paymentBtnLabel').textContent  = 'Payment Done';
-}
 
 
 
 
 
+      
+      function openModal(b){
+        if(!b)return;
+        currentBookingId=b.id;
+        document.getElementById('mId').textContent=b.id;
+        document.getElementById('mName').textContent=b.client;
+        document.getElementById('mDate').textContent=new Date(b.date).toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        document.getElementById('mVenue').textContent=b.venue;
+        //const sc=b.status==='Confirmed'?'rb-confirmed':b.status==='Pending'?'rb-pending':'rb-cancelled';
+        const sc=b.status==='Confirmed'?'rb-confirmed':b.status==='Pending'?'rb-pending':b.status==='Payment Done'?'rb-paymentdone':'rb-cancelled'; 
+        const sb=document.getElementById('mStatusBadge');sb.textContent=b.status;sb.className='row-badge '+sc;
+       document.getElementById('mType').textContent=b.type;
+        document.getElementById('mGuests').textContent=b.guests+' guests';
+        document.getElementById('mContact').textContent=b.contact;
+        document.getElementById('mAmount').textContent=b.amount;
+        document.getElementById('mTime').textContent=b.time;
+        document.getElementById('mBookedOn').textContent=new Date(b.bookedOn).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'});
+        document.getElementById('mNotes').textContent=b.notes;
+        document.getElementById('mMenu').innerHTML=b.menu.map(m=>`<span class="menu-tag-pill">${m}</span>`).join('');
+       // document.getElementById('mTimeline').innerHTML=b.timeline.map(t=>`<div class="ctl-item"><div class="ctl-dot"></div><div class="ctl-time">${t.t}</div><div class="ctl-text">${t.e}</div></div>`).join('');
 
-    // OPEN MODAL 
-function openModal(b) {
-  if (!b) return;
-  currentBookingId = b.id;
-  resetModalPanels();
+        // Show/hide buttons based on current status
+        const btnConfirm=document.getElementById('btnConfirmBooking');
+        const btnCancel=document.getElementById('btnCancelBooking');
+ const btnPayment = document.getElementById('btnPaymentDone');
+btnConfirm.style.display  = (b.status==='Confirmed'||b.status==='Payment Done') ? 'none' : 'flex';
+btnPayment.style.display  = b.status==='Confirmed' ? 'flex' : 'none';
+btnCancel.style.display   = (b.status==='Cancelled' ||b.status==='Payment Done') ? 'none' : 'flex';
 
-  document.getElementById('mId').textContent       = b.id;
-  document.getElementById('mName').textContent     = b.client;
-  document.getElementById('mDate').textContent     = new Date(b.date).toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('mVenue').textContent    = b.venue;
+        document.getElementById('ctModal').classList.add('open');
+        document.body.style.overflow='hidden';
+      }
+      function closeModal(){document.getElementById('ctModal').classList.remove('open');document.body.style.overflow='';}
+      function closeModalBg(e){if(e.target===document.getElementById('ctModal'))closeModal();}
 
-  const sc = b.status==='Confirmed'   ? 'rb-confirmed'   :
-             b.status==='Pending'     ? 'rb-pending'     :
-             b.status==='Payment Done'? 'rb-paymentdone' : 'rb-cancelled';
-  const sb = document.getElementById('mStatusBadge');
-  sb.textContent = b.status;
-  sb.className   = 'row-badge ' + sc;
-
-  document.getElementById('mType').textContent     = b.type;
-  document.getElementById('mGuests').textContent   = b.guests + ' guests';
-  document.getElementById('mContact').textContent  = b.contact;
-  document.getElementById('mAmount').textContent   = b.amount;
-  document.getElementById('mTime').textContent     = b.time;
-  document.getElementById('mBookedOn').textContent = new Date(b.bookedOn).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('mNotes').textContent    = b.notes;
-  document.getElementById('mMenu').innerHTML       = b.menu.map(m=>`<span class="menu-tag-pill">${m}</span>`).join('');
-
-  document.getElementById('mMenu1').innerHTML       = b.menu1.map(m=>`<span class="menu-tag-pill">${m}</span>`).join('');
-
-  // show/hide buttons
-  const btnConfirm = document.getElementById('btnConfirmBooking');
-  const btnCancel  = document.getElementById('btnCancelBooking');
-  const btnPayment = document.getElementById('btnPaymentDone');
-
-  btnConfirm.style.display = (b.status==='Confirmed' || b.status==='Payment Done') ? 'none' : 'flex';
-  btnPayment.style.display = b.status==='Confirmed' ? 'flex' : 'none';
-  btnCancel.style.display  = (b.status==='Cancelled' || b.status==='Payment Done') ? 'none' : 'flex';
-
-  document.getElementById('ctModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-   function closeModal() {
-  document.getElementById('ctModal').classList.remove('open');
-  document.body.style.overflow = '';
-  resetModalPanels();
-}
-function closeModalBg(e) {
-  if (e.target === document.getElementById('ctModal')) closeModal();
-}
       // ── MODAL ACTIONS 
-function actionConfirm() {
-  const b = bookings.find(x => x.id === currentBookingId);
-  if (!b) return;
-
-if (confirmStep === 'idle') {
-    confirmStep = 'awaiting-advance';
-    document.getElementById('remainingPanel').style.display = 'none';
-    paymentStep = 'idle';
-    document.getElementById('advanceAmountInput').value = '';
-    document.getElementById('advancePanel').style.display = 'block';
-    document.getElementById('confirmBtnLabel').textContent = 'Save Advance & Confirm';
-
-    // show delivery charge field only if not self pickup
-    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
-    document.getElementById('deliveryChargeField').style.display = isDelivery ? 'block' : 'none';
-    document.getElementById('deliveryChargeInput').value = '';
-
-    document.querySelector('#ctModal').scrollTop = 9999;
-    return;
-}
-  if (confirmStep === 'awaiting-advance') {
-    const advanceVal = parseFloat(document.getElementById('advanceAmountInput').value);
-    if (isNaN(advanceVal) || advanceVal < 0) {
-      showToast('Please enter a valid advance amount (0 or more).', 'bi-exclamation-triangle-fill', '#e6a817');
-      return;
-    }
-    const total     = b.amountRaw || 0;
-    const remaining = Math.max(0, total - advanceVal);
-
+    function actionConfirm() {
+    const b = bookings.find(x => x.id === currentBookingId);
+    if (!b) return;
+    
     showConfirmDialog(
-      'Confirm Booking?',
-      `Advance: $ ${advanceVal.toLocaleString()} | Remaining: $ ${remaining.toLocaleString()}`,
-      'Yes, Confirm', 'btn-ct-primary',
-      'bi-check-circle-fill', '#e9f7ec', '#28a745',
-     () => {
-    updateBookingStatusInDB(b.id, 'Confirmed', {
-        advance_amount:   advanceVal,
-        remaining_amount: remaining
-    });
-
-    if (b.venue && b.venue.trim().toLowerCase() !== 'self pickup') {
-        const deliveryCharge = document.getElementById('deliveryChargeInput').value || '0';
-        const phone = b.contact.replace(/[^0-9]/g, '');
-        const msg = encodeURIComponent(
-            `Hello ${b.client}, your booking is confirmed!\n\n` +
-            `Package: ${b.type}\n` +
-            `Date: ${b.date}\n` +
-            `Delivery Address: ${b.venue}\n` +
-            `Guests: ${b.guests}\n\n` +
-            `Delivery Charge: $${deliveryCharge}\n\n` +
-            `Thank you!`
-        );
-        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-    }
-    else{
-      const deliveryCharge = document.getElementById('deliveryChargeInput').value || '0';
-        const phone = b.contact.replace(/[^0-9]/g, '');
-        const msg = encodeURIComponent(
-            `Hello ${b.client}, your booking is confirmed!\n\n` +
-            `Package: ${b.type}\n` +
-            `Date: ${b.date}\n` +
-            `Guests: ${b.guests}\n\n` +
-            `Thank you!`
-        );
-        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-
-    }
-}
+        'Confirm Booking?',
+        `Mark ${b.client}'s booking as Confirmed?`,
+        'Yes, Confirm', 'btn-ct-primary',
+        'bi-check-circle-fill', '#e9f7ec', '#28a745',
+        () => {
+            updateBookingStatusInDB(b.id, 'Confirmed');
+        }
     );
-  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function actionCancel() {
-  const b = bookings.find(x => x.id === currentBookingId);
-  if (!b) return;
-  showConfirmDialog(
-    'Cancel Booking?',
-    `This will cancel ${b.client}'s booking.`,
-    'Yes, Cancel', 'btn-ct-danger',
-    'bi-x-circle-fill', '#fdecea', '#dc3545',
-    () => { updateBookingStatusInDB(b.id, 'Cancelled', {}); }
-  );
-}
-
-
-// ── PAYMENT DONE (two-step) ───────────────────────────────────
-function actionPaymentDone() {
-  const b = bookings.find(x => x.id === currentBookingId);
-  if (!b) return;
-
-  if (paymentStep === 'idle') {
-    // STEP 1 — show remaining panel pre-filled
-    paymentStep = 'awaiting-payment';
-    document.getElementById('advancePanel').style.display = 'none';
-    confirmStep = 'idle';
-    const currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
-      ? b.remaining_amount
-      : b.amountRaw;
-    document.getElementById('remainingAmountInput').value = currentRemaining;
-    document.getElementById('remainingBreakdown').innerHTML =
-      `<i class="bi bi-info-circle"></i> Current remaining: <strong> ${Number(currentRemaining).toLocaleString()}</strong>. `;
-    document.getElementById('remainingPanel').style.display = 'block';
-    document.getElementById('paymentBtnLabel').textContent  = 'Save & Mark Paid';
-    document.querySelector('#ctModal').scrollTop = 9999;
-
-    return;
-  }
-
-
-
-
-
-
-  if (paymentStep === 'awaiting-payment') {
-    // STEP 2 — validate and send
-    const payNow = parseFloat(document.getElementById('remainingAmountInput').value);
-    if (isNaN(payNow) || payNow < 0) {
-      showToast('Please enter a valid payment amount.', 'bi-exclamation-triangle-fill', '#e6a817');
-      return;
-    }
-    const currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
-      ? b.remaining_amount
-      : b.amountRaw;
-    const newRemaining = Math.max(0, currentRemaining - payNow);
-
+    const b = bookings.find(x => x.id === currentBookingId);
+    if (!b) return;
+    
     showConfirmDialog(
-      'Mark Payment Done?',
-      `Payment: $ ${payNow.toLocaleString()} | New remaining:  ${newRemaining.toLocaleString()}`,
-      'Yes, Mark Paid', 'btn-ct-payment',
-      'bi-cash-coin', '#ede9fe', '#7c3aed',
-      () => {
-        updateBookingStatusInDB(b.id, 'Payment Done', {
-          remaining_amount: newRemaining
-        });
-      }
+        'Cancel Booking?',
+        `This will cancel ${b.client}'s booking.`,
+        'Yes, Cancel', 'btn-ct-danger',
+        'bi-x-circle-fill', '#fdecea', '#dc3545',
+        () => {
+            updateBookingStatusInDB(b.id, 'Cancelled');
+        }
     );
-  }
+}
+
+function actionPaymentDone() {
+    const b = bookings.find(x => x.id === currentBookingId);
+    if (!b) return;
+    
+    showConfirmDialog(
+        'Mark Payment Done?',
+        `Confirm payment for ${b.client}'s booking?`,
+        'Yes, Mark Paid', 'btn-ct-payment',
+        'bi-cash-coin', '#ede9fe', '#7c3aed',
+        () => {
+            updateBookingStatusInDB(b.id, 'Payment Done');
+        }
+    );
 }
 
 
-function updateBookingStatusInDB(bookingId, newStatus, extraData = {}) {
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  fetch(UPDATE_STATUS_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': csrfToken,
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({ booking_id: bookingId, status: newStatus, ...extraData })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      const b = bookings.find(x => x.id === bookingId);
-      if (b) {
-        b.status = newStatus;
-        if (extraData.advance_amount   !== undefined) b.advance_amount   = extraData.advance_amount;
-        if (extraData.remaining_amount !== undefined) b.remaining_amount = extraData.remaining_amount;
-      }
-      closeModal();
-      refreshAll();
-      showToast(`Status updated to ${newStatus}!`, 'bi-check-circle-fill', '#28a745');
-    } else {
-      showToast('Error: ' + data.message, 'bi-exclamation-triangle-fill', '#dc3545');
-    }
-  })
-  .catch(() => showToast('Network error', 'bi-exclamation-triangle-fill', '#dc3545'));
+function updateBookingStatusInDB(bookingId, newStatus) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch(UPDATE_STATUS_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            booking_id: bookingId,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const b = bookings.find(x => x.id === bookingId);
+            if (b) b.status = newStatus;
+            
+            closeModal();
+            refreshAll();
+            showToast(`Status updated to ${newStatus}!`, 'bi-check-circle-fill', '#28a745');
+            
+            setTimeout(() => {
+                const updated = bookings.find(x => x.id === bookingId);
+                //if (updated) openModal(updated);
+            }, 100);
+        } else {
+            showToast('Error: ' + data.message, 'bi-exclamation-triangle-fill', '#dc3545');
+        }
+    })
+    .catch(error => {
+        showToast('Network error', 'bi-exclamation-triangle-fill', '#dc3545');
+    });
 }
       function actionEdit(){
         const b=bookings.find(x=>x.id===currentBookingId);
@@ -644,7 +515,6 @@ function updateBookingStatusInDB(bookingId, newStatus, extraData = {}) {
         b.guests  = parseInt(document.getElementById('eGuests').value)||b.guests;
         b.venue   = document.getElementById('eVenue').value.trim()||b.venue;
         b.amount  = document.getElementById('eAmount').value.trim()||b.amount;
-       
         b.status  = document.getElementById('eStatus').value;
         b.notes   = document.getElementById('eNotes').value.trim()||b.notes;
 
