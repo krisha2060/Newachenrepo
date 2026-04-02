@@ -186,10 +186,13 @@ function openCalPopup(bookingsList, cellEl, e){
 
       // ── UPCOMING 
       function renderUpcoming(){
-        const sorted=[...bookings].filter(b=>b.status!=='Cancelled').sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,6);
+        const sorted=[...bookings].filter(b=>b.status!=='Cancelled' && b.status !== 'Payment Done').sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,6);
         document.getElementById('upcomingList').innerHTML=sorted.map(b=>{
           const d=new Date(b.date);
-          const sc=b.status==='Confirmed'?'rb-confirmed':b.status==='Pending'?'rb-pending':b.status==='Payment Done'?'rb-paymentdone':'rb-cancelled';          return `<div class="upcoming-item" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
+         const sc = b.status==='Confirmed'   ? 'rb-confirmed'  :
+           b.status==='Pending'     ? 'rb-pending'    :
+           b.status==='Info Sent'   ? 'rb-infosent'   :  
+           b.status==='Payment Done'? 'rb-paymentdone': 'rb-cancelled';        return `<div class="upcoming-item" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
             <div class="up-date-box"><div class="up-day">${d.getDate()}</div><div class="up-mon">${MONTHS[d.getMonth()].slice(0,3)}</div></div>
             <div class="up-info"><div class="up-name">${b.client}</div><div class="up-meta"><i class="bi bi-people" style="font-size:10px"></i> ${b.guests} guests </div></div>
             <span class="up-badge ${sc}">${b.status}</span>
@@ -227,7 +230,10 @@ function renderTable(data){
   const pageData=data.slice(start,start+pageSize);
 
   body.innerHTML=pageData.map(b=>{
-const sc=b.status==='Confirmed'?'ub-confirmed':b.status==='Pending'?'ub-pending':b.status==='Payment Done'?'ub-paymentdone':'ub-cancelled';    const dd=new Date(b.date).toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'});
+  const sc = b.status==='Confirmed'    ? 'ub-confirmed'   :
+           b.status==='Pending'      ? 'ub-pending'     :
+           b.status==='Payment Done' ? 'ub-paymentdone' :
+           b.status==='Info Sent'    ? 'ub-infosent'    : 'ub-cancelled';  const dd=new Date(b.date).toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'});
     return `<tr onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
       <td><span style="color:#007bff;font-size:11px;font-weight:700">${b.id}</span></td>
       <td><div class="client-cell"><div class="cli-avatar" style="background:${b.color}18;color:${b.color}">${b.initials}</div><div><div class="cli-name">${b.client}</div><div class="cli-email">${b.email}</div></div></div></td>
@@ -319,20 +325,24 @@ function setFilter(f,btn){
       // ── MODAL (view) 
 
 // ── PAYMENT FLOW STATE ────────────────────────────────────────
-let confirmStep = 'idle';
-let paymentStep = 'idle';
+let confirmStep  = 'idle';
+let paymentStep  = 'idle';
+let sendInfoStep = 'idle';  
 
 function resetModalPanels() {
   confirmStep = 'idle';
   paymentStep = 'idle';
-  document.getElementById('advancePanel').style.display   = 'none';
-  document.getElementById('remainingPanel').style.display = 'none';
-  document.getElementById('advanceAmountInput').value     = '';
-  document.getElementById('remainingAmountInput').value   = '';
-  document.getElementById('confirmBtnLabel').textContent  = 'Confirm Booking';
-  document.getElementById('paymentBtnLabel').textContent  = 'Payment Done';
+  sendInfoStep = 'idle';   
+  document.getElementById('advancePanel').style.display    = 'none';
+  document.getElementById('remainingPanel').style.display  = 'none';
+  document.getElementById('sendInfoPanel').style.display   = 'none'; 
+  document.getElementById('advanceAmountInput').value      = '';
+  document.getElementById('remainingAmountInput').value    = '';
+  document.getElementById('sendInfoDeliveryInput').value   = '';    
+  document.getElementById('confirmBtnLabel').textContent   = 'Confirm Booking';
+  document.getElementById('paymentBtnLabel').textContent   = 'Payment Done';
+  document.getElementById('sendInfoBtnLabel').textContent  = 'Send Info'; 
 }
-
 
 
 
@@ -349,14 +359,17 @@ function openModal(b) {
   document.getElementById('mDate').textContent     = new Date(b.date).toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('mVenue').textContent    = b.venue;
 
-  const sc = b.status==='Confirmed'   ? 'rb-confirmed'   :
-             b.status==='Pending'     ? 'rb-pending'     :
-             b.status==='Payment Done'? 'rb-paymentdone' : 'rb-cancelled';
+const sc = b.status==='Confirmed'    ? 'rb-confirmed'  :
+           b.status==='Pending'      ? 'rb-pending'    :
+           b.status==='Info Sent'    ? 'rb-infosent'   : 
+           b.status==='Payment Done' ? 'rb-paymentdone': 'rb-cancelled';
   const sb = document.getElementById('mStatusBadge');
   sb.textContent = b.status;
   sb.className   = 'row-badge ' + sc;
 
-  document.getElementById('mType').textContent     = b.type;
+  document.getElementById('mType').textContent = b.kids_package_name
+    ? b.type + ' + ' + 'Kids Package'
+    : b.type;
   document.getElementById('mGuests').textContent   = b.guests + ' guests';
   document.getElementById('mContact').textContent  = b.contact;
   document.getElementById('mAmount').textContent   = b.amount;
@@ -367,14 +380,35 @@ function openModal(b) {
 
   document.getElementById('mMenu1').innerHTML       = b.menu1.map(m=>`<span class="menu-tag-pill">${m}</span>`).join('');
 
-  // show/hide buttons
-  const btnConfirm = document.getElementById('btnConfirmBooking');
-  const btnCancel  = document.getElementById('btnCancelBooking');
-  const btnPayment = document.getElementById('btnPaymentDone');
+  // Kids section
+const kidsSection = document.getElementById('mKidsSection');
+if (kidsSection) {
+    if (b.kids_items && b.kids_items.length) {
+        document.getElementById('mKidsItems').innerHTML = b.kids_items.map(m =>
+            `<span class="menu-tag-pill" style="border-color:rgba(116,172,67,0.4);color:#74ac43;">${m}</span>`
+        ).join('');
+        document.getElementById('mKidsCount').textContent = b.kids_count + ' kids';
+       
+        kidsSection.style.display = 'block';
+    } else {
+        kidsSection.style.display = 'none';
+    }
+}
 
-  btnConfirm.style.display = (b.status==='Confirmed' || b.status==='Payment Done') ? 'none' : 'flex';
-  btnPayment.style.display = b.status==='Confirmed' ? 'flex' : 'none';
-  btnCancel.style.display  = (b.status==='Cancelled' || b.status==='Payment Done') ? 'none' : 'flex';
+  // show/hide buttons
+ const btnConfirm  = document.getElementById('btnConfirmBooking');
+const btnCancel   = document.getElementById('btnCancelBooking');
+const btnPayment  = document.getElementById('btnPaymentDone');
+const btnSendInfo = document.getElementById('btnSendInfo');
+
+// Send Info: only show for Pending
+btnSendInfo.style.display  = b.status === 'Pending'   ? 'flex' : 'none';
+// Confirm: show for Info Sent only (not Pending anymore)
+btnConfirm.style.display   = b.status === 'Info Sent' ? 'flex' : 'none';
+// Payment Done: only for Confirmed
+btnPayment.style.display   = b.status === 'Confirmed' ? 'flex' : 'none';
+// Cancel: hide if already Cancelled or Payment Done
+btnCancel.style.display    = (b.status === 'Cancelled' || b.status === 'Payment Done'||b.status === 'Confirmed') ? 'none' : 'flex';
 
   document.getElementById('ctModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -387,27 +421,102 @@ function openModal(b) {
 function closeModalBg(e) {
   if (e.target === document.getElementById('ctModal')) closeModal();
 }
+
+
+function actionSendInfo() {
+  const b = bookings.find(x => x.id === currentBookingId);
+  if (!b) return;
+
+  if (sendInfoStep === 'idle') {
+    sendInfoStep = 'awaiting-delivery';
+    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+    const panel = document.getElementById('sendInfoPanel');
+
+    // hide delivery input if self pickup
+    document.getElementById('sendInfoDeliveryInput').parentElement.style.display = isDelivery ? 'block' : 'none';
+    panel.style.display = 'block';
+    document.getElementById('sendInfoBtnLabel').textContent = 'Send WhatsApp Now';
+    document.querySelector('#ctModal').scrollTop = 9999;
+    return;
+  }
+
+  if (sendInfoStep === 'awaiting-delivery') {
+    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+    const deliveryCharge = parseFloat(document.getElementById('sendInfoDeliveryInput').value) || 0;
+
+    if (isDelivery && isNaN(deliveryCharge)) {
+      showToast('Please enter a valid delivery charge.', 'bi-exclamation-triangle-fill', '#e6a817');
+      return;
+    }
+
+    // food total (amountRaw minus delivery charge)
+    const foodTotal  = b.amountRaw || 0;
+    const subTotal   = isDelivery ? (foodTotal + deliveryCharge) : foodTotal;
+
+    // build booking details lines
+    const foodItems = [
+      ...(b.menu1  || []),
+      ...(b.menu   || []),
+      ...(b.kids_items || [])
+    ].map(i => `• ${i}`).join('\n');
+
+    const deliveryLine = isDelivery
+      ? `\n*Delivery:* $${deliveryCharge.toLocaleString()}`
+      : '';
+
+    const msg = encodeURIComponent(
+`*Hi ${b.client},*
+Thank you for your order. To confirm your booking, we kindly require a 50% deposit.
+Once the payment is made, please send us a receipt or screenshot of the payment for confirmation.
+When making the transfer, please include your name and booking date as the payment reference so we can easily identify your booking.
+
+*BOOKING DETAILS*
+*Name:* ${b.client}
+*Date:* ${b.date}
+*Time:* ${b.time}
+*Package:* ${b.type}
+*Address:* ${isDelivery ? b.venue : 'Self Pickup'}
+*Food Selection:*
+${foodItems}
+
+*TOTAL*
+*Food Total:* $${foodTotal.toLocaleString()}${deliveryLine}
+*Sub Total:* $${subTotal.toLocaleString()}
+
+*ACCOUNT DETAILS*
+*Account Name: Newa group Pty. Ltd.*
+*BSB: 067873*
+*Account Number: 12712906*
+
+Thank you, and we look forward to make your event special with our delicious catering.`
+    );
+
+    const phone = b.contact.replace(/[^0-9]/g, '');
+
+    // save to DB first, then open WhatsApp
+   updateBookingStatusInDB(b.id, 'Info Sent', { delivery_charge: deliveryCharge }, () => {
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    });
+  }
+}
       // ── MODAL ACTIONS 
 function actionConfirm() {
   const b = bookings.find(x => x.id === currentBookingId);
   if (!b) return;
 
-if (confirmStep === 'idle') {
+  if (confirmStep === 'idle') {
     confirmStep = 'awaiting-advance';
     document.getElementById('remainingPanel').style.display = 'none';
     paymentStep = 'idle';
     document.getElementById('advanceAmountInput').value = '';
     document.getElementById('advancePanel').style.display = 'block';
+    // delivery charge field NOT shown — already saved when info was sent
+    document.getElementById('deliveryChargeField').style.display = 'none';
     document.getElementById('confirmBtnLabel').textContent = 'Save Advance & Confirm';
-
-    // show delivery charge field only if not self pickup
-    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
-    document.getElementById('deliveryChargeField').style.display = isDelivery ? 'block' : 'none';
-    document.getElementById('deliveryChargeInput').value = '';
-
     document.querySelector('#ctModal').scrollTop = 9999;
     return;
-}
+  }
+
   if (confirmStep === 'awaiting-advance') {
     const advanceVal = parseFloat(document.getElementById('advanceAmountInput').value);
     if (isNaN(advanceVal) || advanceVal < 0) {
@@ -419,59 +528,56 @@ if (confirmStep === 'idle') {
 
     showConfirmDialog(
       'Confirm Booking?',
-      `Advance: $ ${advanceVal.toLocaleString()} | Remaining: $ ${remaining.toLocaleString()}`,
+      `Advance: $${advanceVal.toLocaleString()} | Remaining: $${remaining.toLocaleString()}`,
       'Yes, Confirm', 'btn-ct-primary',
       'bi-check-circle-fill', '#e9f7ec', '#28a745',
-     () => {
-    updateBookingStatusInDB(b.id, 'Confirmed', {
-        advance_amount:   advanceVal,
-        remaining_amount: remaining
-    });
+   () => {
+        updateBookingStatusInDB(b.id, 'Confirmed', {
+          advance_amount:   advanceVal,
+          remaining_amount: remaining
+        }, () => {
+          const phone          = b.contact.replace(/[^0-9]/g, '');
+          const isDelivery     = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+          // reuse delivery charge saved during Send Info step
+          const deliveryCharge = b.delivery_charge || 0;
 
-    if (b.venue && b.venue.trim().toLowerCase() !== 'self pickup') {
-        const deliveryCharge = document.getElementById('deliveryChargeInput').value || '0';
-        const phone = b.contact.replace(/[^0-9]/g, '');
-        const msg = encodeURIComponent(
-            `Hello ${b.client}, your booking is confirmed!\n\n` +
-            `Package: ${b.type}\n` +
-            `Date: ${b.date}\n` +
-            `Delivery Address: ${b.venue}\n` +
-            `Guests: ${b.guests}\n\n` +
-            `Delivery Charge: $${deliveryCharge}\n\n` +
-            `Thank you!`
-        );
-        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-    }
-    else{
-      const deliveryCharge = document.getElementById('deliveryChargeInput').value || '0';
-        const phone = b.contact.replace(/[^0-9]/g, '');
-        const msg = encodeURIComponent(
-            `Hello ${b.client}, your booking is confirmed!\n\n` +
-            `Package: ${b.type}\n` +
-            `Date: ${b.date}\n` +
-            `Guests: ${b.guests}\n\n` +
-            `Thank you!`
-        );
-        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+          const mainItems = (b.menu1 && b.menu1.length)
+            ? `\n*Menu Items:*\n${b.menu1.map(i => `  • ${i}`).join('\n')}`
+            : '';
+          const addons = (b.menu && b.menu.length)
+            ? `\n*Add-Ons:*\n${b.menu.map(i => `  • ${i}`).join('\n')}`
+            : '';
+          const kidsSection = (b.kids_items && b.kids_items.length)
+            ? `\n*Kids Package (${b.kids_count} kids):*\n${b.kids_items.map(i => `  • ${i}`).join('\n')}`
+            : '';
+          const deliveryLine = isDelivery
+            ? `\n*Delivery Address:* ${b.venue}\n*Delivery Charge:* $${deliveryCharge}`
+            : '';
 
-    }
-}
+       const msg = encodeURIComponent(
+  `*Hello ${b.client}, your booking is confirmed!* \n\n` +
+  `*BOOKING DETAILS*\n` +
+  `*Name:* ${b.client}\n` +
+  `*Date:* ${b.date}\n` +
+  `*Time:* ${b.time}\n` +
+  `*Package:* ${b.type}\n` +
+  `*Address:* ${isDelivery ? b.venue : 'Self Pickup'}\n` +
+  `*Food Selection:*\n${[...(b.menu1||[]), ...(b.menu||[])].map(i => `  • ${i}`).join('\n')}` +
+  (b.kids_items && b.kids_items.length ? `\n   *Kids (${b.kids_count}):* ${b.kids_items.map(i => `• ${i}`).join('\n ')}` : '') +
+  `\n\n*Total Amount:* ${b.amount}\n` +
+  (isDelivery ? `*Delivery Charge:* $${deliveryCharge.toLocaleString()}\n` : '') +
+  `*Sub Total:* $${(isDelivery ? (b.amountRaw + deliveryCharge) : b.amountRaw).toLocaleString()}\n` +
+  `*Advance Paid:* $${advanceVal.toLocaleString()}\n` +
+  `*Remaining:* $${(isDelivery ? (remaining + deliveryCharge) : remaining).toLocaleString()}\n\n` +
+  `Thank you, and we look forward to make your event special with our delicious catering.`
+);
+
+          window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        });
+      }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function actionCancel() {
   const b = bookings.find(x => x.id === currentBookingId);
@@ -541,7 +647,7 @@ function actionPaymentDone() {
 }
 
 
-function updateBookingStatusInDB(bookingId, newStatus, extraData = {}) {
+function updateBookingStatusInDB(bookingId, newStatus, extraData = {}, onSuccess = null) {
   const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
   fetch(UPDATE_STATUS_URL, {
     method: 'POST',
@@ -560,10 +666,12 @@ function updateBookingStatusInDB(bookingId, newStatus, extraData = {}) {
         b.status = newStatus;
         if (extraData.advance_amount   !== undefined) b.advance_amount   = extraData.advance_amount;
         if (extraData.remaining_amount !== undefined) b.remaining_amount = extraData.remaining_amount;
+        if (extraData.delivery_charge !== undefined) b.delivery_charge = extraData.delivery_charge;
       }
       closeModal();
       refreshAll();
       showToast(`Status updated to ${newStatus}!`, 'bi-check-circle-fill', '#28a745');
+       if (onSuccess) onSuccess();
     } else {
       showToast('Error: ' + data.message, 'bi-exclamation-triangle-fill', '#dc3545');
     }

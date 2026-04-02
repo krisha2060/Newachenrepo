@@ -51,4 +51,32 @@ Route::get('/run-migration-create_order_package_selections', function () {
     return 'Migration executed!';
 });
 
+Route::get('/run-migration-create_kids_order_items', function () {
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/2026_03_31_044319_create_kids_order_items_table.php',
+        '--force' => true
+    ]);
+ 
+    return 'Migration executed!';
+});
+
+Route::get('/run-migration-add_kids_fields_to_orders_table', function () {
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/2026_03_31_044338_add_kids_fields_to_orders_table.php',
+        '--force' => true
+    ]);
+ 
+    return 'Migration executed!';
+});
+
+Route::get('/run-migration-add_delivery_charge_to_orders_table', function () {
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/2026_04_01_080201_add_delivery_charge_to_orders_table.php',
+        '--force' => true
+    ]);
+ 
+    return 'Migration executed!';
+});
+
+
 

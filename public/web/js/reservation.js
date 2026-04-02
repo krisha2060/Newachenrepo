@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('date');
     const form = document.getElementById('reservationForm');
 
+
+
+
+
     let selectedAddons = [];
 
     // Set today's date as minimum
@@ -188,8 +192,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (tag) tag.remove();
                 });
 
-                guestsInput.value = 15;
-
+               // guestsInput.value = 15;
+                guestsInput.min = (packageId == 4) ? 25 : 15;
+                guestsInput.value = (packageId == 4) ? 25 : 15;
+                
                 packageButtons.forEach(btn => { btn.style.background = 'transparent'; btn.style.color = 'var(--accent-gold)'; });
                 clickedBtn.style.background = 'var(--accent-gold)';
                 clickedBtn.style.color      = 'var(--dark-bg)';
@@ -223,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ─── Pickup / Delivery Toggle ─────────────────────────────
+    //  Pickup / Delivery Toggle 
     const pdtBtns            = document.querySelectorAll('.pdt-btn');
     const addressBlock       = document.getElementById('addressshow');
     const deliveryTypeInput  = document.getElementById('deliveryTypeInput');
@@ -249,41 +255,52 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ─── Update Total Price ───────────────────────────────────
-    function updateTotalPrice() {
-        const basePrice   = parseFloat(packagePriceInput.value) || 0;
-        let guests        = parseInt(guestsInput.value) || 15;
-        if (guests < 15) guests = 15;
+  function updateTotalPrice() {
+    const basePrice   = parseFloat(packagePriceInput.value) || 0;
+    let guests        = parseInt(guestsInput.value) || 15;
+    if (guests < 15) guests = 15;
 
-        const addonsTotal    = selectedAddons.reduce((sum, a) => sum + a.price, 0);
-        const totalPerPerson = basePrice + addonsTotal;
-        const total          = totalPerPerson * guests;
+    const addonsTotal    = selectedAddons.reduce((sum, a) => sum + a.price, 0);
+    const totalPerPerson = basePrice + addonsTotal;
+    const total          = totalPerPerson * guests;
 
-        const packageId = selectedPackageInput.value;
-        const pkgName   = packageId
-            ? (document.querySelector(`.select-btn[data-id="${packageId}"], .select-btn-small[data-id="${packageId}"]`)?.dataset?.package || packageId)
-            : packageId;
+    const packageId = selectedPackageInput.value;
+    const pkgName   = packageId
+        ? (document.querySelector(`.select-btn[data-id="${packageId}"], .select-btn-small[data-id="${packageId}"]`)?.dataset?.package || packageId)
+        : packageId;
 
-        if (packageId) {
-            selectedInfo.innerHTML = `
-                <span class="info-label">
-                    <strong>Selected:</strong> ${pkgName} — $${basePrice.toFixed(2)} per person
-                    ${selectedAddons.length ? '<br><small style="color:var(--accent-gold);opacity:.8;">Add-ons: ' + selectedAddons.map(a => a.name).join(', ') + '</small>' : ''}
-                    <br><strong>Guests:</strong> ${guests}
-                    <br><strong>Total:</strong> $${total.toFixed(2)}
-                </span>
-            `;
-        }
+    // ── read kids state from hidden inputs ────────────────
+    const kidsTotal = parseFloat(document.getElementById('kidsPackageTotalInput')?.value || 0);
+    const kidsCount = parseInt(document.getElementById('kidsCountInput')?.value || 0);
+    const kidsItems = document.getElementById('kidsItemsDisplayInput')?.value || '';
+    const grandTotal = total + kidsTotal;
 
-        document.getElementById('addonsInput').value    = JSON.stringify(selectedAddons);
-        document.getElementById('totalPriceInput').value = total.toFixed(2);
+    if (packageId) {
+        selectedInfo.innerHTML = `
+            <span class="info-label">
+                <strong>Selected:</strong> ${pkgName} — $${basePrice.toFixed(2)} per person
+                ${selectedAddons.length ? '<br><small style="color:var(--accent-gold);opacity:.8;">Add-ons: ' + selectedAddons.map(a => a.name).join(', ') + '</small>' : ''}
+                <br><strong>Guests:</strong> ${guests}
+                <br><strong>Total:</strong> $${total.toFixed(2)}
+                ${kidsTotal ? `
+                <br><br><strong style="color:#74ac43;">+ Kids Package:</strong> ${kidsCount} kids × $${window.kidsPackagePrice}
+                ${kidsItems ? '<br><small style="color:#74ac43;opacity:.85;">Items: ' + kidsItems + '</small>' : ''}
+                <br><strong style="color:#74ac43;">Kids Total:</strong> $${kidsTotal.toFixed(2)}
+                <br><strong>Grand Total:</strong> $${grandTotal.toFixed(2)}
+                ` : ''}
+            </span>
+        `;
     }
 
-    // ─── Guests Validation ────────────────────────────────────
+    document.getElementById('addonsInput').value     = JSON.stringify(selectedAddons);
+    document.getElementById('totalPriceInput').value = grandTotal.toFixed(2); // include kids in grand total
+}
+    // Guests Validation 
     guestsInput.addEventListener('blur', function () {
         const value = parseInt(this.value);
-        if (value < 15 || isNaN(value)) {
-            this.setCustomValidity("For catering events, minimum 15 guests are required");
+       const minGuests = (selectedPackageInput.value == 4) ? 25 : 15;
+if (value < minGuests || isNaN(value)) {
+    this.setCustomValidity(`For this package, minimum ${minGuests} guests are required`);
             this.reportValidity();
         } else {
             this.setCustomValidity("");
@@ -292,9 +309,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     guestsInput.addEventListener('input', updateTotalPrice);
 
-    // ─── Flatpickr ────────────────────────────────────────────
+    // Flatpickr 
     flatpickr(".theme-date", { dateFormat: "Y-m-d", minDate: "today", disableMobile: true });
-    flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true, disableMobile: true });
+    flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, disableMobile: true });
 
 
     // ═══════════════════════════════════════════════════════════
@@ -428,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
             box-shadow:0 4px 20px rgba(34, 55, 14, 0.2);
         }
         .orv-confirm-btn:hover  {transform: translateY(-2px);
-    box-shadow: 0 8px 30px #347e0973;}
+        box-shadow: 0 8px 30px #347e0973;}
         .orv-confirm-btn:active { transform:translateY(0); }
         .orv-confirm-btn:disabled { opacity:0.6; pointer-events:none; }
 
@@ -450,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(reviewStyles);
 
-    // ── refs ──────────────────────────────────────────────────
+    //  refs 
     const reviewOverlay = document.getElementById('orderReviewModal');
     const orvBody       = document.getElementById('orvBody');
     const orvBackBtn    = document.getElementById('orvBackBtn');
@@ -467,90 +484,116 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape' && reviewOverlay.classList.contains('orv-active')) closeReview();
     });
 
-    // ── Build review table from form data ─────────────────────
+    // ── Build review table from form data 
     function buildReviewHTML() {
-        const get = id => (document.getElementById(id)?.value || '').trim();
+    //const get = id => (document.getElementById(id)?.value || '').trim();
+    const get = id => document.getElementById(id)?.value || '';
 
-        const packageName  = get('selectedPackageNameInput');
-        const packagePrice = parseFloat(get('packagePriceInput')) || 0;
-        const guests       = parseInt(get('guests')) || 0;
-        const packageTotal = packagePrice * guests;
-        const addonsTotal  = selectedAddons.reduce((s, a) => s + a.price * guests, 0);
-        const grandTotal   = packageTotal + addonsTotal;
+    const packageName  = get('selectedPackageNameInput');
+    const packagePrice = parseFloat(get('packagePriceInput')) || 0;
+    const guests       = parseInt(get('guests')) || 0;
+    const packageTotal = packagePrice * guests;
+    const addonsTotal  = selectedAddons.reduce((s, a) => s + a.price * guests, 0);
 
-        // Menu choices from hidden group-selection input
-        let menuItems = '';
-        try {
-            const names = Object.values(JSON.parse(get('groupSelectionInput') || '{}')).filter(Boolean);
-            if (names.length) menuItems = names.join(', ');
-        } catch(e) {}
+    // ── kids ──────────────────────────────────────────────
+    const kidsPackageId    = get('kidsPackageIdInput');
+    const kidsCount        = parseInt(get('kidsCountInput')) || 0;
+    const kidsPackageTotal = parseFloat(get('kidsPackageTotalInput')) || 0;
+    const kidsItemsDisplay = get('kidsItemsDisplayInput'); 
 
-        const deliveryType = get('deliveryTypeInput');
-        const venue        = deliveryType === 'delivery' ? (get('event_address') || '—') : 'Self Pickup';
+    const grandTotal = packageTotal + addonsTotal + kidsPackageTotal;
 
-        // Friendly date
-        const rawDate = get('date');
-        let niceDate = rawDate;
-        try {
-            if (rawDate) niceDate = new Date(rawDate + 'T00:00').toLocaleDateString('en-AU', {
-                weekday:'short', day:'numeric', month:'long', year:'numeric'
-            });
-        } catch(e) {}
+    // Menu choices from hidden group-selection input
+    let menuItems = '';
+    try {
+        const names = Object.values(JSON.parse(get('groupSelectionInput') || '{}')).filter(Boolean);
+        if (names.length) menuItems = names.join(', ');
+    } catch(e) {}
 
-        // Helpers
-        const row  = (lbl, val) => (!val && val !== 0) ? '' :
-            `<div class="orv-row"><span class="orv-lbl">${lbl}</span><span class="orv-val">${val}</span></div>`;
-        const head = lbl =>
-            `<div class="orv-row orv-head">${lbl}</div>`;
-        const tot  = (lbl, val) =>
-            `<div class="orv-row orv-total"><span class="orv-lbl">${lbl}</span><span class="orv-val">${val}</span></div>`;
+    const deliveryType = get('deliveryTypeInput');
+    const venue        = deliveryType === 'delivery' ? (get('event_address') || '—') : 'Self Pickup';
 
-        return `
-            <div class="orv-badge">Review Order</div>
-            <h2 class="orv-title">Confirm Your Reservation</h2>
-            <p class="orv-subtitle">Please review your details before placing the order.</p>
-            <div class="orv-table">
+    let niceDate = get('date');
+    try {
+        if (niceDate) niceDate = new Date(niceDate + 'T00:00').toLocaleDateString('en-AU', {
+            weekday:'short', day:'numeric', month:'long', year:'numeric'
+        });
+    } catch(e) {}
 
-                ${head('Customer Details')}
-                ${row('Name',  get('name'))}
-                ${row('Email', get('email'))}
-                ${row('Phone', get('phone'))}
+    const row  = (lbl, val) => (!val && val !== 0) ? '' :
+        `<div class="orv-row"><span class="orv-lbl">${lbl}</span><span class="orv-val">${val}</span></div>`;
+    const head = lbl =>
+        `<div class="orv-row orv-head">${lbl}</div>`;
+    const tot  = (lbl, val) =>
+        `<div class="orv-row orv-total"><span class="orv-lbl">${lbl}</span><span class="orv-val">${val}</span></div>`;
 
-                ${head('Event Details')}
-                ${row('Date',   niceDate)}
-                ${row('Time',   get('time'))}
-                ${row('Guests', guests)}
-                ${row('Venue',  venue)}
+    return `
+        <div class="orv-badge">Review Order</div>
+        <h2 class="orv-title">Confirm Your Reservation</h2>
+        <p class="orv-subtitle">Please review your details before placing the order.</p>
+        <div class="orv-table">
 
-                ${head('Package')}
-                ${row('Selected',       packageName)}
-                ${row('Price per head', '$' + packagePrice.toFixed(2))}
-                ${menuItems ? row('Your menu', menuItems) : ''}
+            ${head('Customer Details')}
+            ${row('Name',  get('name'))}
+            ${row('Email', get('email'))}
+            ${row('Phone', get('phone'))}
 
-                ${selectedAddons.length ? head('Add-ons') : ''}
-                ${selectedAddons.map(a =>
-                    row(a.name, `$${(a.price * guests).toFixed(2)} <small style="opacity:.5">(${guests} × $${a.price})</small>`)
-                ).join('')}
+            ${head('Event Details')}
+            ${row('Date',   niceDate)}
+            ${row('Time',   get('time'))}
+            ${row('Guests', guests)}
+            ${row('Venue',  venue)}
 
-                ${get('special_requests') ? head('Special Requests') : ''}
-                ${get('special_requests') ? row('Notes', get('special_requests')) : ''}
+            ${head('Package')}
+            ${row('Selected',       packageName)}
+            ${row('Price per head', '$' + packagePrice.toFixed(2))}
+            ${menuItems ? row('Your menu', menuItems) : ''}
 
-                ${head('Pricing Summary')}
-                ${row('Package total', '$' + packageTotal.toFixed(2))}
-                ${addonsTotal ? row('Add-ons total', '$' + addonsTotal.toFixed(2)) : ''}
-                ${tot('Grand Total <small style="font-weight:400;font-size:10px;opacity:.55">(excl. GST)</small>',
-                      '$' + grandTotal.toFixed(2))}
-            </div>
-        `;
-    }
+            ${selectedAddons.length ? head('Add-ons') : ''}
+            ${selectedAddons.map(a =>
+                row(a.name, `$${(a.price * guests).toFixed(2)} <small style="opacity:.5">(${guests} × $${a.price})</small>`)
+            ).join('')}
+
+            ${kidsPackageId ? `
+            ${head('Kids Package')}
+            ${row('Kids attending', kidsCount)}
+            ${row('Price per kid', '$' + (Number(window.kidsPackagePrice) || 0).toFixed(2))}
+            ${kidsItemsDisplay ? row('Items selected', kidsItemsDisplay) : ''}
+            ${row('Kids total', '$' + kidsPackageTotal.toFixed(2))}
+            ` : ''}
+
+            ${get('special_requests') ? head('Special Requests') : ''}
+            ${get('special_requests') ? row('Notes', get('special_requests')) : ''}
+
+            ${head('Pricing Summary')}
+            ${row('Package total', '$' + packageTotal.toFixed(2))}
+            ${addonsTotal ? row('Add-ons total', '$' + addonsTotal.toFixed(2)) : ''}
+            ${kidsPackageTotal ? row('Kids package total', '$' + kidsPackageTotal.toFixed(2)) : ''}
+            ${tot('Grand Total <small style="font-weight:400;font-size:10px;opacity:.55"></small>',
+                  '$' + grandTotal.toFixed(2))}
+        </div>
+    `;
+}
 
     // ─── Form submit → show review (no network call) ──────────
+    form.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const fields = Array.from(form.querySelectorAll('input, textarea, select, button[type="submit"]'));
+        const index = fields.indexOf(e.target);
+        if (index > -1 && fields[index + 1]) {
+            fields[index + 1].focus();
+        }
+    }
+});
+    
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const guestsValue = parseInt(guestsInput.value);
-        if (guestsValue < 15 || isNaN(guestsValue)) {
-            showToast('For catering events, minimum 15 guests are required', 'warning');
+    const minGuests = (selectedPackageInput.value == 4) ? 25 : 15;
+if (guestsValue < minGuests || isNaN(guestsValue)) {
+    showToast(`For this package, minimum ${minGuests} guests are required`, 'warning');
             guestsInput.focus();
             return;
         }
@@ -593,7 +636,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
 
- let pkgSwiper = null;
+let pkgSwiper = null;
 let occSwiper = null;
 
 function initMobileSwipers() {
@@ -641,4 +684,309 @@ function initMobileSwipers() {
     initMobileSwipers();
     window.addEventListener('resize', initMobileSwipers);
 
+
+
+(function () {
+    const KIDS_ID    = window.kidsPackageId;
+    const KIDS_PRICE = window.kidsPackagePrice;
+    const KIDS_ITEMS = window.kidsPackageItems;
+    const KIDS_NAME  = window.kidsPackageName;
+
+    if (!KIDS_ID || !KIDS_PRICE || !KIDS_ITEMS.length) {
+        console.log('Kids package data not loaded from database');
+        return;
+    }
+
+    
+    const bannerWrap      = document.getElementById('kidsBannerWrap');
+    const kidsAddonCta    = document.getElementById('kidsAddonCta');
+    const kidsBannerSub   = document.getElementById('kidsBannerSub');
+    const selectedBadge   = document.getElementById('kidsSelectedBadge');
+    const selectedBadgeTxt= document.getElementById('kidsSelectedBadgeText');
+    const kidsEditLink    = document.getElementById('kidsEditLink');
+
+    const overlay         = document.getElementById('kidsModal');
+    const modalClose      = document.getElementById('kidsModalClose');
+    const btnNext         = document.getElementById('kidsBtnNext');
+    const btnBack         = document.getElementById('kidsBtnBack');
+
+    const choiceList      = document.getElementById('kidsChoiceList');
+    const pickCount       = document.getElementById('kidsPickCount');
+    const orOpts          = document.getElementById('kidsOrOpts');
+    const orLabel         = document.getElementById('kidsOrLabel');
+    const kidsCountDisplay= document.getElementById('kidsCountDisplay');
+    const kidsMinusBtn    = document.getElementById('kidsMinusBtn');
+    const kidsPlusBtn     = document.getElementById('kidsPlusBtn');
+    const kidsBreakdown   = document.getElementById('kidsBreakdown');
+    const kidsPreviewTotal= document.getElementById('kidsPreviewTotal');
+
+    const inKidsId        = document.getElementById('kidsPackageIdInput');
+    const inKidsTotal     = document.getElementById('kidsPackageTotalInput');
+    const inKidsCount     = document.getElementById('kidsCountInput');
+    const inKidsItems     = document.getElementById('kidsItemsInput');
+    const kidsItemsDisplay = document.getElementById('kidsItemsDisplayInput');
+
+    const modalSub = document.querySelector('.kids-modal-sub');
+    if (modalSub) {
+        modalSub.innerHTML = `$${KIDS_PRICE} per kid · Select 2 items · Minimum 10 kids`;
+    }
+
+    // ── State ─────────────────────────────────────────────
+    let kStep        = 0;
+    let kSelected    = [];
+    let kOrChoice    = null;
+    let kOrOptions   = [];
+    let kCount       = 10;
+    let kHasOr       = false;
+    let kConfirmed   = false;
+
+    // ── Show banner when main package is selected ─────────
+    document.querySelectorAll('.select-btn, .select-btn-small').forEach(btn => {
+        btn.addEventListener('click', function () {
+            setTimeout(() => {
+                if (bannerWrap) bannerWrap.style.display = 'block';
+            }, 400);
+        });
+    });
+
+    // ── Open / Close ──────────────────────────────────────
+    function openKidsModal() {
+        buildChoiceList();
+        overlay.classList.add('kids-modal-active');
+        document.body.style.overflow = 'hidden';
+        goToStep(0);
+    }
+
+    function closeKidsModal() {
+        overlay.classList.remove('kids-modal-active');
+        document.body.style.overflow = '';
+    }
+
+    kidsAddonCta.addEventListener('click', openKidsModal);
+    kidsEditLink.addEventListener('click', openKidsModal);
+    modalClose.addEventListener('click', closeKidsModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeKidsModal(); });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && overlay.classList.contains('kids-modal-active')) closeKidsModal();
+    });
+
+    // ── Build choice list from package items ──────────────
+    function buildChoiceList() {
+        choiceList.innerHTML = '';
+        kSelected = [];
+        kOrChoice = null;
+        kHasOr    = false;
+
+        KIDS_ITEMS.forEach(item => {
+            const options = item.label.split(' or ').map(s => s.trim()).filter(Boolean);
+            const hasOr   = options.length > 1;
+
+            const card = document.createElement('div');
+            card.className = 'kids-choice-card';
+            card.dataset.name    = item.label;
+            card.dataset.groupId = item.group_id;
+            card.dataset.hasOr   = hasOr ? '1' : '0';
+            card.dataset.opts    = JSON.stringify(options);
+
+            card.innerHTML = `
+                <div class="kcc-dot"></div>
+                <div class="kcc-name">${options[0]}${hasOr ? ' or ' + options[1] : ''}</div>
+            `;
+
+            card.addEventListener('click', () => toggleKidsItem(card));
+            choiceList.appendChild(card);
+        });
+
+        updatePickCount();
+        btnNext.disabled = true;
+        btnNext.textContent = 'Select 2 items to continue';
+    }
+
+    function toggleKidsItem(card) {
+        const isSelected = card.classList.contains('kcc-selected');
+        if (!isSelected && kSelected.length >= 2) return;
+
+        card.classList.toggle('kcc-selected', !isSelected);
+
+        if (isSelected) {
+            kSelected = kSelected.filter(n => n !== card.dataset.name);
+        } else {
+            kSelected.push(card.dataset.name);
+        }
+
+        document.querySelectorAll('.kids-choice-card').forEach(c => {
+            if (kSelected.length >= 2 && !c.classList.contains('kcc-selected')) {
+                c.classList.add('kcc-disabled');
+            } else {
+                c.classList.remove('kcc-disabled');
+            }
+        });
+
+        updatePickCount();
+
+        if (kSelected.length === 2) {
+            const orCard = [...document.querySelectorAll('.kids-choice-card.kcc-selected')]
+                .find(c => c.dataset.hasOr === '1');
+            kHasOr = !!orCard;
+            if (kHasOr) {
+                kOrOptions = JSON.parse(orCard.dataset.opts);
+                kOrChoice  = null;
+            }
+            btnNext.disabled    = false;
+            btnNext.textContent = kHasOr ? 'Next: Pick variant →' : 'Next: Set kids count →';
+        } else {
+            btnNext.disabled    = true;
+            btnNext.textContent = `Select ${2 - kSelected.length} more item${kSelected.length === 1 ? '' : 's'}`;
+        }
+    }
+
+    function updatePickCount() {
+        pickCount.textContent = `(${kSelected.length} / 2 selected)`;
+    }
+
+    // ── Build or-options ──────────────────────────────────
+    function buildOrStep() {
+        orLabel.textContent = `Choose variant for: ${kOrOptions[0]} or ${kOrOptions[1]}`;
+        orOpts.innerHTML = '';
+        kOrOptions.forEach((opt) => {
+            const pill = document.createElement('div');
+            pill.className = 'kids-or-pill';
+            pill.textContent = opt;
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.kids-or-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                kOrChoice = opt;
+                btnNext.disabled = false;
+            });
+            orOpts.appendChild(pill);
+        });
+    }
+
+    // ── Count controls ────────────────────────────────────
+    kidsMinusBtn.addEventListener('click', () => {
+        if (kCount > 10) { kCount--; refreshCount(); }
+    });
+    kidsPlusBtn.addEventListener('click', () => {
+        kCount++;
+        refreshCount();
+    });
+
+    function refreshCount() {
+        kidsCountDisplay.textContent = kCount;
+        kidsMinusBtn.disabled = (kCount <= 10);
+        const t = (kCount * KIDS_PRICE).toFixed(2);
+        kidsBreakdown.textContent    = `${kCount} kids × $${KIDS_PRICE}`;
+        kidsPreviewTotal.textContent = `$${t}`;
+    }
+
+    // ── Step navigation ───────────────────────────────────
+    function goToStep(s) {
+        kStep = s;
+
+        const step0 = document.getElementById('kstep0');
+        const step1 = document.getElementById('kstep1');
+        const step2 = document.getElementById('kstep2');
+
+        if (step0) step0.style.display = (s === 0) ? 'block' : 'none';
+        if (step1) step1.style.display = (s === 1 && kHasOr) ? 'block' : 'none';
+        if (step2) step2.style.display = (s === 2) ? 'block' : 'none';
+
+        if (s === 1 && kHasOr) buildOrStep();
+        if (s === 2) refreshCount();
+
+        const dots = ['kdot0', 'kdot1', 'kdot2'];
+        dots.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.display = 'block';
+                el.classList.toggle('active', i === s);
+            }
+        });
+
+        btnBack.style.display = (s > 0) ? 'inline-flex' : 'none';
+
+        // ── Wire buttons per step ──
+        btnBack.onclick = prevStep;
+
+        if (s === 0) {
+            btnNext.disabled    = kSelected.length < 2;
+            btnNext.textContent = kSelected.length < 2
+                ? `Select ${2 - kSelected.length} more item${kSelected.length === 1 ? '' : 's'}`
+                : (kHasOr ? 'Next: Pick variant →' : 'Next: Set kids count →');
+            btnNext.onclick = advanceStep;
+        }
+
+        if (s === 1) {
+            btnNext.disabled    = true;
+            btnNext.textContent = 'Next: Set kids count →';
+            btnNext.onclick     = advanceStep;
+        }
+
+        if (s === 2) {
+            btnNext.disabled    = false;
+            btnNext.textContent = 'Confirm Kids Package ✓';
+            btnNext.onclick     = confirmKids; 
+        }
+    }
+
+    function advanceStep() {
+        if (kStep === 0) {
+            if (kSelected.length < 2) {
+                alert('Please select 2 items');
+                return;
+            }
+            goToStep(kHasOr ? 1 : 2);
+        }
+        else if (kStep === 1) {
+            if (!kOrChoice) {
+                return;
+            }
+            goToStep(2);
+        }
+        // step 2 is handled directly by btnNext.onclick = confirmKids
+    }
+
+    function prevStep() {
+        if (kStep === 2 && !kHasOr) {
+            goToStep(0);
+        } else if (kStep === 2 && kHasOr) {
+            goToStep(1);
+        } else if (kStep === 1) {
+            goToStep(0);
+        } else if (kStep > 0) {
+            goToStep(kStep - 1);
+        }
+    }
+
+  
+
+    function confirmKids() {
+        const finalItems = kSelected.map(name => {
+            const card = [...document.querySelectorAll('.kids-choice-card')]
+                .find(c => c.dataset.name === name);
+            return (card?.dataset.hasOr === '1' && kOrChoice) ? kOrChoice : name.split(' or ')[0].trim();
+        });
+
+        const kidsTotal = (kCount * KIDS_PRICE).toFixed(2);
+
+        inKidsId.value    = KIDS_ID;
+        inKidsTotal.value = kidsTotal;
+        inKidsCount.value = kCount;
+        inKidsItems.value = JSON.stringify(finalItems);
+
+        if (kidsItemsDisplay) kidsItemsDisplay.value = finalItems.join(' + ');
+
+        kConfirmed = true;
+        closeKidsModal();
+
+        kidsAddonCta.textContent    = 'Edit';
+        kidsBannerSub.textContent   = `✓ Added · ${kCount} kids · ${finalItems.join(' + ')} · $${kidsTotal}`;
+        selectedBadge.style.display = 'flex';
+        selectedBadgeTxt.innerHTML  =
+            `<strong>Kids package added</strong> · ${kCount} kids · ${finalItems.join(' & ')} · <strong>$${kidsTotal}</strong>`;
+
+        if (typeof updateTotalPrice === 'function') updateTotalPrice();
+    }
+
+})();
 });

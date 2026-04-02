@@ -623,10 +623,8 @@
 
         /* Block Links */
         .block-links {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-        }
+                grid-template-columns: 1fr;
+            }
 
         .block-link {
             position: relative;
@@ -786,6 +784,7 @@
               .block-link1 {
                 display:none;
             }
+            
             
 
             .footer-content {
@@ -3096,7 +3095,7 @@
 .pdt-btn.active {
     border-color: #74ac43a1;
     background: #ebf7df1f;
-    color: #74ac43a1;
+    color: #74ac43;
 }
 .delivery-info-note {
     display: flex;

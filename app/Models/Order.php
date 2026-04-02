@@ -24,6 +24,9 @@ class Order extends Model
         'order_status',
         'advance_amount',
         'remaining_amount',
+        'kids_package_id',
+        'kids_count',
+        'kids_package_total',
     ];
     public function package()
     {
@@ -37,6 +40,17 @@ class Order extends Model
     public function ItemsList()
     {
         return $this->hasMany(OrderPackageSelection::class, 'order_id');
+    }
+
+
+        public function kidsPackage()
+    {
+        return $this->belongsTo(Package::class, 'kids_package_id');
+    }
+
+    public function kidsOrderItems()
+    {
+        return $this->hasMany(KidsOrderItem::class, 'order_id');
     }
     
 }

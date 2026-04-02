@@ -108,7 +108,7 @@
             <div class="mn-catering__header">
                 <span class="subtitle">Catering</span>
                 <h3>Newa Catering Menu</h3>
-                <p>Minimum 15 people &nbsp;·&nbsp; All prices excluding GST</p>
+                <p>Minimum 15 people (For Package 4 minimum 25 guests)</p>
                 <br>
                 <a href="{{ route('reservation') }}" class="btn-underline">Book Catering Now</a>
             </div>
@@ -872,7 +872,7 @@
     <a href="{{ route('reservation') }}" class="btn-underline">Book Catering Now</a>
 </div>
             </div>
-            <div class="block-link1">
+            <!-- <div class="block-link1">
                 <img src="{{asset('web\images\DSC07160.JPG')}}" alt="Reservation">
                 <div class="block-overlay">
                     <span class="subtitle">Book Catering</span>
@@ -881,7 +881,7 @@
                     <p><strong>BOOKING</strong><br>Email:<br>newa.catering.sydney@gmail.com</p>
                     <a href="{{ route('reservation') }}" class="btn-underline">Online Booking</a>
                 </div>
-            </div>
+            </div> -->
         </section>  
         
         

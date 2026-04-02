@@ -155,13 +155,20 @@
                             <label>Email Address <span class="required">*</span></label>
                             <input type="email" name="email" id="email" required placeholder="john@example.com">
                         </div>
-     <div class="form-group">
+<div class="form-group">
     <label>Phone Number <span class="required">*</span></label>
-    <input type="tel" name="customer_phone" id="phone"
-           value="+61 "
-           pattern="^\+61\s?4\d{8}$"
-           placeholder="+61 4XXXXXXXX"
-           required>
+    <div class="phone-input-wrapper">
+        <div class="country-code-badge">
+            <img src="https://flagcdn.com/w20/au.png" alt="AU" class="country-flag">
+            <span class="country-code">+61</span>
+        </div>
+        <input type="tel" id="phone_suffix"
+               placeholder="4XXXXXXXX"
+               pattern="^4\d{8}$"
+               maxlength="9"
+               required>
+    </div>
+    <input type="hidden" name="customer_phone" id="phone">
 </div>
                         <div class="form-group">
                             <label>Guests <span class="required">*</span></label>

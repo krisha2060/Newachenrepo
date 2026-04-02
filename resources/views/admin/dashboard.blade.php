@@ -29,7 +29,7 @@
                   <div class="stat-icon-box sib-gold"><i class="bi bi-clock-fill"></i></div>
                   <div class="stat-trend trend-warn" id="statPendingTrend"></div>
                   <div class="stat-num" id="statPending">–</div>
-                  <div class="stat-lbl">Pending Approval</div>
+                  <div class="stat-lbl" >Pending Approval</div>
                 </div>
               </div>
               <div class="col-xl-3 col-md-6">
@@ -96,11 +96,12 @@
                     <input class="ct-search" type="text" placeholder="Search bookings..." id="tableSearch" oninput="filterTable()"/>
                   </div>
                   <button class="ct-filter-btn active" onclick="setFilter('all',this)">All</button>
-                  <button class="ct-filter-btn" onclick="setFilter('Confirmed',this)">Confirmed</button>
                   <button class="ct-filter-btn" onclick="setFilter('Pending',this)">Pending</button>
+                  <button class="ct-filter-btn" onclick="setFilter('Info Sent',this)">Info Sent</button>
+                  <button class="ct-filter-btn" onclick="setFilter('Confirmed',this)">Confirmed</button>               
+                  <button class="ct-filter-btn" onclick="setFilter('Payment Done',this)">Payment Done</button>
                   <button class="ct-filter-btn" onclick="setFilter('Cancelled',this)">Cancelled</button>
                   
-                  <button class="ct-filter-btn" onclick="setFilter('Payment Done',this)">Payment Done</button>
                 </div>
               </div>
               <div style="overflow-x:auto">
@@ -236,13 +237,41 @@
           <div class="menu-tags-wrap" id="mMenu1"></div>
           <div class="modal-sub-title"><i class="bi bi-egg-fried"></i> AddOns</div>
           <div class="menu-tags-wrap" id="mMenu"></div>
+        
+        
+          <div id="mKidsSection" style="display:none;">
+              <div class="modal-sub-title">
+                  <i class="bi bi-emoji-smile"></i> Kids Package
+                  <span id="mKidsCount" style="font-size:11px;color:#007bff;margin-left:6px;text-transform:none;letter-spacing:0;font-weight:600;"></span>
+              </div>
+              <div class="menu-tags-wrap" id="mKidsItems"></div>
+          </div>
+    
+
           <div class="modal-sub-title"><i class="bi bi-chat-left-text"></i> Special Notes</div>
           <div class="notes-text" id="mNotes"></div>
           <!--<div class="modal-sub-title"><i class="bi bi-clock-history"></i> Activity Timeline</div>
           <div class="ct-timeline" id="mTimeline"></div>-->
 
 
-
+<!-- SEND INFO PANEL -->
+<div id="sendInfoPanel" style="display:none; margin-top:4px; margin-bottom:4px;">
+  <div class="modal-sub-title"><i class="bi bi-whatsapp" style="color:#25d366"></i> Send Booking Info</div>
+  <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:14px 16px;">
+    <label class="dg-label" style="display:block;margin-bottom:6px;color:#166534">
+      Delivery Charge
+    </label>
+    <input
+      id="sendInfoDeliveryInput"
+      class="ct-edit-input"
+      type="number"
+      min="0"
+      placeholder="Enter delivery charge..."
+      style="border-color:#86efac;background:#fff;"
+    />
+ 
+  </div>
+</div>
           <!-- ADVANCE PAYMENT PANEL (shown when Confirming) -->
 <div id="advancePanel" style="display:none; margin-top:4px; margin-bottom:4px;">
   <div class="modal-sub-title"><i class="bi bi-cash-stack"></i> Advance Payment</div>
@@ -307,7 +336,7 @@
 </div>
       
         </div>
-      <div class="ct-modal-footer" style="flex-direction:column;align-items:stretch;gap:10px">
+<div class="ct-modal-footer" style="flex-direction:column;align-items:stretch;gap:10px">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
     <div style="display:flex;gap:8px">
       <button class="btn-ct btn-ct-danger" id="btnCancelBooking" onclick="actionCancel()">
@@ -315,12 +344,17 @@
       </button>
     </div>
     <div style="display:flex;gap:8px">
+      <!-- added the sent info button here -->
+      <button class="btn-ct btn-ct-info" id="btnSendInfo" onclick="actionSendInfo()">
+        <i class="bi bi-whatsapp"></i> <span id="sendInfoBtnLabel">Send Info</span>
+      </button>
       <button class="btn-ct btn-ct-primary" id="btnConfirmBooking" onclick="actionConfirm()">
         <i class="bi bi-check-circle"></i> <span id="confirmBtnLabel">Confirm Booking</span>
       </button>
       <button class="btn-ct btn-ct-payment" id="btnPaymentDone" onclick="actionPaymentDone()">
         <i class="bi bi-cash-coin"></i> <span id="paymentBtnLabel">Payment Done</span>
       </button>
+
     </div>
   </div>
 </div>
@@ -422,6 +456,7 @@
       .ub-confirmed { background:#e9f7ec; color:#28a745; }
       .ub-pending   { background:#fff8e1; color:#e6a817; }
       .ub-cancelled { background:#fdecea; color:#dc3545; }
+      
 
       /* TABLE */
       .ct-table-toolbar { padding:14px 20px; border-bottom:1px solid #f0f2f5; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
@@ -498,6 +533,10 @@
       .btn-ct-danger  { background:#fdecea; border:1px solid #f5a9a3; color:#dc3545; } .btn-ct-danger:hover { background:#fbd5d1; }
       .btn-ct-payment { background:#ede9fe; border:1px solid #c4b5fd; color:#7c3aed; }
       .btn-ct-payment:hover { background:#ddd6fe; }
+      .rb-infosent  { background:#e0f2fe; color:#0369a1; }
+      .ub-infosent  { background:#e0f2fe; color:#0369a1; }
+      .btn-ct-info { background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; }
+      .btn-ct-info:hover { background:#bae6fd; }
       
 
     </style>
