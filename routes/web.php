@@ -23,7 +23,13 @@ Route::get('/run-migration-payment-fields', function () {
     return 'Migration executed!';
 });
 
+Route::get('/run-migration', function () {
+    Artisan::call('migrate', [
+        '--force' => true // required for production
+    ]);
 
+    return 'Migration executed!';
+});
 Route::get('/run-migration-group_id', function () {
     Artisan::call('migrate', [
         '--path' => 'database/migrations/2026_03_22_081531_add_group_id_to_package_items_table.php',
