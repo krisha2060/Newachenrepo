@@ -157,11 +157,30 @@
                         </div>
                         <div class="form-group">
                         <label>Phone Number <span class="required">*</span></label>
-                        <input type="tel" name="customer_phone" id="phone"
-                            value="+61 "
-                            pattern="^\+61\s?4\d{8}$"
-                            placeholder="+61 4XXXXXXXX"
-                            required>
+                        
+                        <div style="display: flex;">
+                            <!-- Country Code -->
+                            <span style="
+                                padding: 8px 12px;
+                                border-radius: 4px 0 0 4px;
+                            ">
+                                +61
+                            </span>
+
+                            <!-- Phone Input -->
+                            <input 
+                                type="tel" 
+                                name="customer_phone" 
+                                id="phone"
+                                pattern="^4\d{8}$"
+                                placeholder="4XXXXXXXX"
+                                required
+                                style="
+                                    flex: 1;
+                                    padding: 8px;
+                                "
+                            >
+                        </div>
                     </div>
                         <div class="form-group">
                             <label>Guests <span class="required">*</span></label>
