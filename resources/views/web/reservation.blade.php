@@ -155,14 +155,14 @@
                             <label>Email Address <span class="required">*</span></label>
                             <input type="email" name="email" id="email" required placeholder="john@example.com">
                         </div>
-     <div class="form-group">
-    <label>Phone Number <span class="required">*</span></label>
-    <input type="tel" name="customer_phone" id="phone"
-           value="+61 "
-           pattern="^\+61\s?4\d{8}$"
-           placeholder="+61 4XXXXXXXX"
-           required>
-</div>
+                        <div class="form-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="customer_phone" id="phone"
+                            value="+61 "
+                            pattern="^\+61\s?4\d{8}$"
+                            placeholder="+61 4XXXXXXXX"
+                            required>
+                    </div>
                         <div class="form-group">
                             <label>Guests <span class="required">*</span></label>
                             <input type="number" name="guest_count" id="guests" required placeholder="Enter number of guests" >

@@ -314,15 +314,7 @@ function setFilter(f,btn){
 
 
 
-
-
-
-
-
-
-
-
-      // ── MODAL (view) 
+     
 
 // ── PAYMENT FLOW STATE ────────────────────────────────────────
 let confirmStep  = 'idle';
@@ -475,6 +467,7 @@ When making the transfer, please include your name and booking date as the payme
 *Date:* ${b.date}
 *Time:* ${b.time}
 *Package:* ${b.type}
+*Guests:* ${b.guests}
 *Address:* ${isDelivery ? b.venue : 'Self Pickup'}
 *Food Selection:*
 ${foodItems}
@@ -561,6 +554,7 @@ function actionConfirm() {
   `*Date:* ${b.date}\n` +
   `*Time:* ${b.time}\n` +
   `*Package:* ${b.type}\n` +
+  `*Guests:* ${b.guests}\n` +
   `*Address:* ${isDelivery ? b.venue : 'Self Pickup'}\n` +
   `*Food Selection:*\n${[...(b.menu1||[]), ...(b.menu||[])].map(i => `  • ${i}`).join('\n')}` +
   (b.kids_items && b.kids_items.length ? `\n   *Kids (${b.kids_count}):* ${b.kids_items.map(i => `• ${i}`).join('\n ')}` : '') +

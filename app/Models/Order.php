@@ -41,8 +41,6 @@ class Order extends Model
     {
         return $this->hasMany(OrderPackageSelection::class, 'order_id');
     }
-
-
         public function kidsPackage()
     {
         return $this->belongsTo(Package::class, 'kids_package_id');

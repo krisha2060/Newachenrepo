@@ -611,28 +611,33 @@ if (guestsValue < minGuests || isNaN(guestsValue)) {
         orvConfirmBtn.classList.add('orv-loading');
         orvConfirmBtn.disabled = true;
 
-        fetch(form.action, {
-            method: 'POST',
-            body: new FormData(form),
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(r => r.json())
-        .then(() => {
-            closeReview();
+      fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+})
+.then(r => r.json())
+.then(res => {
+    if (res.success) {
+        closeReview();
 
-            // Hide the old order-confirmed modal if it somehow fires
-            const oldModal = document.getElementById('orderConfirmationModal');
-            if (oldModal) oldModal.style.display = 'none';
+        const oldModal = document.getElementById('orderConfirmationModal');
+        if (oldModal) oldModal.style.display = 'none';
 
-            showToast(' Reservation confirmed! We\'ll be in touch soon.', 'success', 3500);
-            setTimeout(() => location.reload(), 2800);
-        })
-        .catch(err => {
-            console.error(err);
-            orvConfirmBtn.classList.remove('orv-loading');
-            orvConfirmBtn.disabled = false;
-            showToast('Something went wrong. Please try again.', 'error');
-        });
+        showToast('Reservation confirmed! We\'ll be in touch soon.', 'success', 3500);
+        setTimeout(() => location.reload(), 2800);
+    } else {
+        showToast(res.message || 'Failed to save data.', 'error');
+        orvConfirmBtn.classList.remove('orv-loading');
+        orvConfirmBtn.disabled = false;
+    }
+})
+.catch(err => {
+    console.error(err);
+    orvConfirmBtn.classList.remove('orv-loading');
+    orvConfirmBtn.disabled = false;
+    showToast('Something went wrong. Please try again.', 'error');
+});
     });
     
 
