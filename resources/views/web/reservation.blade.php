@@ -192,7 +192,7 @@
                         </div>
                         <div class="form-group">
                             <label>Preferred Time <span class="required">*</span></label>
-                            <input type="text" name="event_time" id="time" placeholder="Select Time" class="theme-time">
+                            <input type="time" name="event_time" id="time" placeholder="Select Time" class="theme-time">
                         </div>
                     </div>
 
@@ -292,8 +292,12 @@
                 <div class="info-icon"><i class="fas fa-utensils"></i></div>
                 <h3>Catering Services</h3>
                 <div class="info-details">
-                    <p><strong>Flexible Scheduling:</strong> We operate based on your event timing.</p>
-                    <p><strong>Custom Menu Options:</strong> We can adjust our menu according to your dietary requirements. Prices may vary based on customization.</p>
+                    <p>. Booking must be made at least one week in advance</p>
+                    <p>. 50% deposit is required to secure your booking</p>
+                    <p>. Kindly note that the remaining balance must be paid one day prior to your booking date.</p>
+                    <p>. Delivery charges will apply depending on location</p>
+                    <!-- <p><strong>Flexible Scheduling:</strong> We operate based on your event timing.</p> -->
+                    <!-- <p><strong>Custom Menu Options:</strong> We can adjust our menu according to your dietary requirements. Prices may vary based on customization.</p> -->
                 </div>
             </div>
         </div>

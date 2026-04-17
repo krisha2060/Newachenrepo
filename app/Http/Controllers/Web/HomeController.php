@@ -103,6 +103,7 @@ class HomeController extends Controller
                 'items' => [
                     'Baji (Chiura)',
                     'Laba-Mushya-Palu',
+                    'Mass ko Bara',
                     'Anda',
                     'Bhuti',
                     'Saag(Palung)',

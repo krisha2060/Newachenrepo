@@ -18,9 +18,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedAddons = [];
 
     // Set today's date as minimum
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.min = today;
-    dateInput.value = today;
+    // const today = new Date().toISOString().split('T')[0];
+    // dateInput.min = today;
+    // dateInput.value = today;
+
+
+
+// Set minimum date to 1 week from today
+const today = new Date();
+const minDate = new Date(today);
+minDate.setDate(today.getDate() + 7); // Add 7 days
+const minDateStr = minDate.toISOString().split('T')[0];
+
+dateInput.min = minDateStr;
+dateInput.value = minDateStr;
 
     // Show catering section by default
     cateringSection.style.display = 'block';
@@ -297,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
     // Guests Validation 
     guestsInput.addEventListener('blur', function () {
-        const value = parseInt(this.value);
+       const value = parseInt(this.value);
        const minGuests = (selectedPackageInput.value == 4) ? 25 : 15;
 if (value < minGuests || isNaN(value)) {
     this.setCustomValidity(`For this package, minimum ${minGuests} guests are required`);
@@ -310,8 +321,15 @@ if (value < minGuests || isNaN(value)) {
     guestsInput.addEventListener('input', updateTotalPrice);
 
     // Flatpickr 
-    flatpickr(".theme-date", { dateFormat: "Y-m-d", minDate: "today", disableMobile: true });
-    flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, disableMobile: true });
+   // flatpickr(".theme-date", { dateFormat: "Y-m-d", minDate: "today", disableMobile: true });
+     flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, disableMobile: true });
+
+flatpickr(".theme-date", { 
+    dateFormat: "Y-m-d", 
+    minDate: minDateStr,  
+    disableMobile: true 
+});
+
 
 
     // ═══════════════════════════════════════════════════════════
@@ -702,7 +720,6 @@ function initMobileSwipers() {
         return;
     }
 
-    
     const bannerWrap      = document.getElementById('kidsBannerWrap');
     const kidsAddonCta    = document.getElementById('kidsAddonCta');
     const kidsBannerSub   = document.getElementById('kidsBannerSub');
@@ -736,7 +753,6 @@ function initMobileSwipers() {
         modalSub.innerHTML = `$${KIDS_PRICE} per kid · Select 2 items · Minimum 10 kids`;
     }
 
-    // ── State ─────────────────────────────────────────────
     let kStep        = 0;
     let kSelected    = [];
     let kOrChoice    = null;
@@ -745,7 +761,6 @@ function initMobileSwipers() {
     let kHasOr       = false;
     let kConfirmed   = false;
 
-    // ── Show banner when main package is selected ─────────
     document.querySelectorAll('.select-btn, .select-btn-small').forEach(btn => {
         btn.addEventListener('click', function () {
             setTimeout(() => {
@@ -754,9 +769,8 @@ function initMobileSwipers() {
         });
     });
 
-    // ── Open / Close ──────────────────────────────────────
     function openKidsModal() {
-        buildChoiceList();
+        buildChoiceList(kConfirmed);
         overlay.classList.add('kids-modal-active');
         document.body.style.overflow = 'hidden';
         goToStep(0);
@@ -775,12 +789,14 @@ function initMobileSwipers() {
         if (e.key === 'Escape' && overlay.classList.contains('kids-modal-active')) closeKidsModal();
     });
 
-    // ── Build choice list from package items ──────────────
-    function buildChoiceList() {
+    function buildChoiceList(isEdit = false) {
         choiceList.innerHTML = '';
-        kSelected = [];
-        kOrChoice = null;
-        kHasOr    = false;
+
+        if (!isEdit) {
+            kSelected = [];
+            kOrChoice = null;
+            kHasOr    = false;
+        }
 
         KIDS_ITEMS.forEach(item => {
             const options = item.label.split(' or ').map(s => s.trim()).filter(Boolean);
@@ -798,13 +814,31 @@ function initMobileSwipers() {
                 <div class="kcc-name">${options[0]}${hasOr ? ' or ' + options[1] : ''}</div>
             `;
 
+            if (isEdit && kSelected.includes(item.label)) {
+                card.classList.add('kcc-selected');
+            }
+
             card.addEventListener('click', () => toggleKidsItem(card));
             choiceList.appendChild(card);
         });
 
+        if (isEdit && kSelected.length >= 2) {
+            document.querySelectorAll('.kids-choice-card').forEach(c => {
+                if (!c.classList.contains('kcc-selected')) {
+                    c.classList.add('kcc-disabled');
+                }
+            });
+        }
+
         updatePickCount();
-        btnNext.disabled = true;
-        btnNext.textContent = 'Select 2 items to continue';
+
+        if (isEdit && kSelected.length === 2) {
+            btnNext.disabled    = false;
+            btnNext.textContent = kHasOr ? 'Next: Pick variant →' : 'Next: Set kids count →';
+        } else {
+            btnNext.disabled    = true;
+            btnNext.textContent = 'Select 2 items to continue';
+        }
     }
 
     function toggleKidsItem(card) {
@@ -849,7 +883,6 @@ function initMobileSwipers() {
         pickCount.textContent = `(${kSelected.length} / 2 selected)`;
     }
 
-    // ── Build or-options ──────────────────────────────────
     function buildOrStep() {
         orLabel.textContent = `Choose variant for: ${kOrOptions[0]} or ${kOrOptions[1]}`;
         orOpts.innerHTML = '';
@@ -857,6 +890,9 @@ function initMobileSwipers() {
             const pill = document.createElement('div');
             pill.className = 'kids-or-pill';
             pill.textContent = opt;
+            if (opt === kOrChoice) {
+                pill.classList.add('active');
+            }
             pill.addEventListener('click', () => {
                 document.querySelectorAll('.kids-or-pill').forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
@@ -867,7 +903,6 @@ function initMobileSwipers() {
         });
     }
 
-    // ── Count controls ────────────────────────────────────
     kidsMinusBtn.addEventListener('click', () => {
         if (kCount > 10) { kCount--; refreshCount(); }
     });
@@ -884,7 +919,6 @@ function initMobileSwipers() {
         kidsPreviewTotal.textContent = `$${t}`;
     }
 
-    // ── Step navigation ───────────────────────────────────
     function goToStep(s) {
         kStep = s;
 
@@ -910,7 +944,6 @@ function initMobileSwipers() {
 
         btnBack.style.display = (s > 0) ? 'inline-flex' : 'none';
 
-        // ── Wire buttons per step ──
         btnBack.onclick = prevStep;
 
         if (s === 0) {
@@ -922,7 +955,7 @@ function initMobileSwipers() {
         }
 
         if (s === 1) {
-            btnNext.disabled    = true;
+            btnNext.disabled    = !kOrChoice;
             btnNext.textContent = 'Next: Set kids count →';
             btnNext.onclick     = advanceStep;
         }
@@ -930,7 +963,7 @@ function initMobileSwipers() {
         if (s === 2) {
             btnNext.disabled    = false;
             btnNext.textContent = 'Confirm Kids Package ✓';
-            btnNext.onclick     = confirmKids; 
+            btnNext.onclick     = confirmKids;
         }
     }
 
@@ -941,14 +974,10 @@ function initMobileSwipers() {
                 return;
             }
             goToStep(kHasOr ? 1 : 2);
-        }
-        else if (kStep === 1) {
-            if (!kOrChoice) {
-                return;
-            }
+        } else if (kStep === 1) {
+            if (!kOrChoice) return;
             goToStep(2);
         }
-        // step 2 is handled directly by btnNext.onclick = confirmKids
     }
 
     function prevStep() {
@@ -962,8 +991,6 @@ function initMobileSwipers() {
             goToStep(kStep - 1);
         }
     }
-
-  
 
     function confirmKids() {
         const finalItems = kSelected.map(name => {

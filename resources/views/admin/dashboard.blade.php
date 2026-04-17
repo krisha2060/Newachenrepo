@@ -99,8 +99,11 @@
                   <button class="ct-filter-btn" onclick="setFilter('Pending',this)">Pending</button>
                   <button class="ct-filter-btn" onclick="setFilter('Info Sent',this)">Info Sent</button>
                   <button class="ct-filter-btn" onclick="setFilter('Confirmed',this)">Confirmed</button>               
-                  <button class="ct-filter-btn" onclick="setFilter('Payment Done',this)">Payment Done</button>
                   <button class="ct-filter-btn" onclick="setFilter('Cancelled',this)">Cancelled</button>
+                  <button class="ct-filter-btn" onclick="setFilter('Reminder Sent',this)">Reminder Sent</button>
+                  <button class="ct-filter-btn" onclick="setFilter('Payment Done',this)">Payment Done</button>
+
+                  <button class="ct-filter-btn" onclick="setFilter('Delivered',this)">Delivered</button>
                   
                 </div>
               </div>
@@ -177,6 +180,8 @@
                 <option>Pending</option>
                 <option>Cancelled</option>
                 <option>Payment Done</option>
+                <option>Reminder Sent</option>
+                <option>Delivered</option>
               </select>
             </div>
           </div>
@@ -289,7 +294,7 @@
     />
     <div style="font-size:11px;color:#6c757d;margin-top:6px">
       <i class="bi bi-info-circle"></i>
-      Remaining = Total Amount − Advance. Enter 0 if no advance taken.
+      Advanced amount must be >=50% of total.
     </div>
   </div>
 
@@ -334,7 +339,6 @@
     </div>
   </div>
 </div>
-      
         </div>
 <div class="ct-modal-footer" style="flex-direction:column;align-items:stretch;gap:10px">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
@@ -354,7 +358,12 @@
       <button class="btn-ct btn-ct-payment" id="btnPaymentDone" onclick="actionPaymentDone()">
         <i class="bi bi-cash-coin"></i> <span id="paymentBtnLabel">Payment Done</span>
       </button>
-
+      <button class="btn-ct btn-ct-reminder" id="btnSendReminder" onclick="actionSendReminder()">
+        <i class="bi bi-whatsapp"></i> Send Reminder
+      </button>
+      <button class="btn-ct btn-ct-delivered" id="btnMarkDelivered" onclick="actionMarkDelivered()">
+        <i class="bi bi-truck"></i> Delivered
+      </button>
     </div>
   </div>
 </div>
@@ -383,7 +392,7 @@
         const UPDATE_STATUS_URL = "{{ route('admin.update-status') }}";
         
     </script>
-
+   
     <script src="{{ asset('web/js/dashboard.js') }}"></script>
 
 
@@ -537,6 +546,14 @@
       .ub-infosent  { background:#e0f2fe; color:#0369a1; }
       .btn-ct-info { background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; }
       .btn-ct-info:hover { background:#bae6fd; }
+      .rb-remindersent { background:#fff3e0; color:#c2660a; }
+      .ub-remindersent { background:#fff3e0; color:#c2660a; }
+      .btn-ct-reminder { background:#fff3e0; border:1px solid #ffb74d; color:#c2660a; }
+      .btn-ct-reminder:hover { background:#ffe0b2; }
+      .rb-delivered { background:#e8f5e9; color:#1b5e20; }
+      .ub-delivered { background:#e8f5e9; color:#1b5e20; }
+      .btn-ct-delivered { background:#e8f5e9; border:1px solid #81c784; color:#2e7d32; }
+      .btn-ct-delivered:hover { background:#c8e6c9; }
       
 
     </style>

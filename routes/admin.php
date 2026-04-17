@@ -38,5 +38,24 @@ Route::get('/logout', function (Request $request) {
 })->name('admin.logout');
 
 
+   Route::get('/datewisebookings', [App\Http\Controllers\Admin\BookingController::class, 'datewise'])
+    ->middleware(AuthenticateAdmin::class)
+    ->name('admin.datewisebookings');
+
+
     // Update booking status (confirm, cancel, payment done)
     Route::post('/update-status', [App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('admin.update-status');
+
+
+
+    Route::get('/print-single/{id}', [App\Http\Controllers\Admin\BookingController::class, 'printSingle'])
+    ->middleware(AuthenticateAdmin::class)
+    ->name('admin.print-single');
+
+Route::get('/print-all', [App\Http\Controllers\Admin\BookingController::class, 'printAll'])
+    ->middleware(AuthenticateAdmin::class)
+    ->name('admin.print-all');
+
+Route::get('/export-excel', [App\Http\Controllers\Admin\BookingController::class, 'exportExcel'])
+    ->middleware(AuthenticateAdmin::class)
+    ->name('admin.export-excel');
