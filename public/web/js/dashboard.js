@@ -544,8 +544,8 @@ function actionConfirm() {
     const total     = b.amountRaw || 0;
     const deliveryCharge = b.delivery_charge || 0;
     const totalWithDelivery = total + deliveryCharge;
-    const minimumAdvance = totalWithDelivery * 0.5; // 50% of total
-    const remaining = Math.max(0, total - advanceVal);
+    const minimumAdvance = totalWithDelivery * 0.5; 
+    const remaining = Math.max(0, totalWithDelivery - advanceVal);
 
     // Build display message for total (with delivery label only if delivery exists)
     let totalDisplay = `$${totalWithDelivery.toLocaleString()}`;
@@ -603,7 +603,14 @@ function proceedWithAdvanceUpdate(b, advanceVal, remaining) {
     const deliveryLine = isDelivery
       ? `\n*Delivery Address:* ${b.venue}\n*Delivery Charge:* $${deliveryCharge}`
       : '';
+const subtotal = isDelivery
+  ? (b.amountRaw + deliveryCharge)
+  : b.amountRaw;
 
+const safeRemaining = subtotal - advanceVal <= 0
+  ? 0
+  : subtotal - advanceVal;
+  
     const msg = encodeURIComponent(
       `*Hello ${b.client}, your booking is confirmed!* \n\n` +
       `*BOOKING DETAILS*\n` +
@@ -619,7 +626,7 @@ function proceedWithAdvanceUpdate(b, advanceVal, remaining) {
       (isDelivery ? `*Delivery Charge:* $${deliveryCharge.toLocaleString()}\n` : '') +
       `*Sub Total:* $${(isDelivery ? (b.amountRaw + deliveryCharge) : b.amountRaw).toLocaleString()}\n` +
       `*Advance Paid:* $${advanceVal.toLocaleString()}\n` +
-      `*Remaining:* $${(isDelivery ? (remaining + deliveryCharge) : remaining).toLocaleString()}\n\n` +
+      `*Remaining:* $${safeRemaining.toLocaleString()}\n` +
       `Thank you, and we look forward to make your event special with our delicious catering.`
     );
 
@@ -644,30 +651,40 @@ function actionSendReminder() {
   const b = bookings.find(x => x.id === currentBookingId);
   if (!b) return;
 
-  let remaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
-    ? parseFloat(b.remaining_amount)
-    : parseFloat(b.amountRaw || 0);
+const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
 
-  // Add delivery charge if it exists
-  if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
-    remaining += parseFloat(b.delivery_charge);
-  }
+const deliveryCharge = parseFloat(b.delivery_charge || 0);
 
-  const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+const subtotal = isDelivery
+  ? (parseFloat(b.amountRaw || 0) + deliveryCharge)
+  : parseFloat(b.amountRaw || 0);
+
+let remaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+  ? parseFloat(b.remaining_amount)
+  : subtotal;
+
+remaining = remaining <= 0 ? 0 : remaining;
+  
+
+  //const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
 
   // Build date display: tomorrow's date based on event date
   const eventDate = new Date(b.date);
   const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const deliveryOrPickup = isDelivery ? 'delivered' : 'ready for pick up';
 
-  const msg = encodeURIComponent(
+ const balanceLine = remaining === 0
+  ? 'You have no remaining balance.'
+  : `You have an outstanding balance of $${Number(remaining).toLocaleString()}.`;
+
+const msg = encodeURIComponent(
 `Namaste ${b.client},
-Your food will be ${deliveryOrPickup} by ${b.time} tomorrow (${dateStr}).
-You have an outstanding balance of $${Number(remaining).toLocaleString()}.
+Your food will be ${deliveryOrPickup} by ${b.time} tomorrow (${eventDate}).
+${balanceLine}
 Could you please send us a screenshot of a receipt once the transaction has been completed. We would really appreciate it if the balance could be cleared by today.
 Thank you
 Newa Chen & Catering Services.`
-  );
+);
 
   const phone = b.contact.replace(/[^0-9]/g, '');
 
@@ -718,17 +735,21 @@ function actionPaymentDone() {
   if (!b) return;
 
   if (paymentStep === 'idle') {
-    // STEP 1 — show remaining panel pre-filled (with delivery charge included)
     paymentStep = 'awaiting-payment';
     document.getElementById('advancePanel').style.display = 'none';
     confirmStep = 'idle';
-    let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
-      ? b.remaining_amount
-      : b.amountRaw;
-    // Add delivery charge if it exists
-    if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
-      currentRemaining += parseFloat(b.delivery_charge);
-    }
+   const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+const deliveryCharge = parseFloat(b.delivery_charge || 0);
+
+const subtotal = isDelivery
+  ? (parseFloat(b.amountRaw || 0) + deliveryCharge)
+  : parseFloat(b.amountRaw || 0);
+
+let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+  ? parseFloat(b.remaining_amount)
+  : subtotal;
+
+currentRemaining = currentRemaining <= 0 ? 0 : currentRemaining;
     document.getElementById('remainingAmountInput').value = currentRemaining;
     document.getElementById('remainingBreakdown').innerHTML =
       `<i class="bi bi-info-circle"></i> Current remaining: <strong> ${Number(currentRemaining).toLocaleString()}</strong>. `;
@@ -745,24 +766,29 @@ function actionPaymentDone() {
 
 
   if (paymentStep === 'awaiting-payment') {
-    // STEP 2 — validate and send
+  
     const payNow = parseFloat(document.getElementById('remainingAmountInput').value);
     if (isNaN(payNow) || payNow < 0) {
       showToast('Please enter a valid payment amount.', 'bi-exclamation-triangle-fill', '#e6a817');
       return;
     }
-    let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
-      ? b.remaining_amount
-      : b.amountRaw;
-    // Add delivery charge if it exists
-    if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
-      currentRemaining += parseFloat(b.delivery_charge);
-    }
-    const newRemaining = Math.max(0, currentRemaining - payNow);
+const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+const deliveryCharge = parseFloat(b.delivery_charge || 0);
 
+const subtotal = isDelivery
+  ? (parseFloat(b.amountRaw || 0) + deliveryCharge)
+  : parseFloat(b.amountRaw || 0);
+
+let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+  ? parseFloat(b.remaining_amount)
+  : subtotal;
+
+currentRemaining = currentRemaining <= 0 ? 0 : currentRemaining;
+
+const newRemaining = Math.max(0, currentRemaining - payNow);
     showConfirmDialog(
       'Mark Payment Done?',
-      `Payment: $ ${payNow.toLocaleString()} | New remaining:  ${newRemaining.toLocaleString()}`,
+      `Payment: $ ${payNow.toLocaleString()}`,
       'Yes, Mark Paid', 'btn-ct-payment',
       'bi-cash-coin', '#ede9fe', '#7c3aed',
       () => {

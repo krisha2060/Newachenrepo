@@ -230,5 +230,11 @@
             <p style="margin-top:15px;font-size:11px;">This is a computer-generated invoice. No signature is required.</p>
         </div>
     </div>
+    <script>
+    
+    window.onload = function() {
+        window.print();
+    };
+</script>
 </body>
 </html>

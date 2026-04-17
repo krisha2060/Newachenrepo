@@ -119,7 +119,7 @@
 
     <div class="print-btn">
         <button class="btn-cl" onclick="window.close()">Close</button>
-        <button class="btn-ex" onclick="exportToExcel()"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
+        <!-- <button class="btn-ex" onclick="exportToExcel()"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button> -->
         <button class="btn-pr" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
     </div>
     
@@ -231,6 +231,10 @@
             const ids  = '{{ request("ids") }}';
             window.location.href = `/admin/export-excel?from=${from}&to=${to}${ids ? '&ids=' + ids : ''}`;
         }
-    </script>
+  
+    window.onload = function() {
+        window.print();
+    };
+</script>
 </body>
 </html>
