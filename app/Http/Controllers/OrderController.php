@@ -42,7 +42,7 @@ class OrderController extends Controller
             $packageTotal = $package->price_per_pax * $guestCount;
             $addonTotal   = 0;
 
-            // ── Kids pre-calc ─────────────────────────────────
+            //  Kids pre-calc 
             $kidsPackageId    = $request->filled('kids_package_id') ? (int) $request->kids_package_id : null;
             $kidsCount        = $request->filled('kids_count')      ? (int) $request->kids_count      : null;
             $kidsPackageTotal = null;
@@ -52,11 +52,11 @@ class OrderController extends Controller
                 $kidsPackageTotal = $kidsPackage->price_per_pax * $kidsCount;
             }
 
-            // ── Create Order ──────────────────────────────────
+            // Create Order 
             $order = Order::create([
                 'package_id'         => $package->id,
                 'customer_name'      => $request->customer_name,
-                'customer_phone'     => $request->customer_phone,
+                'customer_phone'     => '+61' . $request->customer_phone,
                 'email'              => $request->email,
                 'delivery_address'   => $request->delivery_address,
                 'event_date'         => $request->event_date,
@@ -77,7 +77,7 @@ class OrderController extends Controller
 
             if (!$order) throw new \Exception('Order creation failed');
 
-            // ── Main Package Group Selections ─────────────────
+            // Main Package Group Selections 
             $selectedItemNames = [];
 
             if ($request->filled('package_group_items')) {
@@ -107,9 +107,9 @@ class OrderController extends Controller
                 }
             }
 
-            // ── Kids Order Items ──────────────────────────────
+            //  Kids Order Items 
             // JS sends item names: ["Chicken Nuggets (4pcs) & Chips", "Veg Chowmein"]
-            // Same lookup pattern as main package group selections
+           
             if ($kidsPackageId && $request->filled('kids_items')) {
                 $kidsItemNames = json_decode($request->kids_items, true);
 
@@ -131,7 +131,7 @@ class OrderController extends Controller
 
 
 
-            // ── Save Add-ons ──────────────────────────────────
+            //  Save Add-ons 
             $addonsData = [];
 
             if ($request->filled('addons')) {
@@ -157,7 +157,7 @@ class OrderController extends Controller
                 }
             }
 
-            // ── Update totals ─────────────────────────────────
+            //  Update totals 
             $grandTotal = $packageTotal + $addonTotal + ($kidsPackageTotal ?? 0);
 
             $updated = $order->update([
@@ -180,6 +180,7 @@ class OrderController extends Controller
         });
 
         return response()->json([
+            'success'        => true,
             'message'        => 'Order created successfully',
             'order_details'  => $orderDetails['order'],
             'addons'         => $orderDetails['addons'],
