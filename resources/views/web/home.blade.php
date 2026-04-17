@@ -198,7 +198,7 @@
                             <div class="menu-dots"></div>
                             <span class="menu-price">$18/$20</span>
                         </div>
-                        <p class="menu-description">Choice of Chicken or Buff Choila served with Alu Aachar and Chuira</p>
+                        <p class="menu-description">Choice of Chicken or Buff Choila served with Aalu Aachar and Chuira</p>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
@@ -263,11 +263,11 @@
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Fried Chicken <h5>Veg/Chicken/Buff</h5> </span>
+                            <span class="menu-title">Fried Rice <h5>Veg/Chicken/Buff</h5> </span>
                             <div class="menu-dots"></div>
                             <span class="menu-price">$14/$16/$18</span>
                         </div>
-                        <p class="menu-description">Stir fried steamed rice with mixed vegetables, spices and Nepalese herbs.</p>
+                        <p class="menu-description">Stir fried steamed rice fried with mixed vegetables, spices and Nepalese herbs.</p>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
@@ -362,14 +362,14 @@
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Mango Lassi <h5> (Apple, Mango, Orange)</h5></span>
+                            <span class="menu-title">Mango Lassi </span>
                             <div class="menu-dots"></div>
                             <span class="menu-price">$7</span>
                         </div>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Juice</span>
+                            <span class="menu-title">Juice <h5> (Apple, Mango, Orange)</h5></span>
                             <div class="menu-dots"></div>
                             <span class="menu-price">$4</span>
                         </div>
@@ -394,14 +394,14 @@
                     <h2>HOT BEVERAGES</h2>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Cardamom Tea <h5> (Coke, Fanta, Sprite)</h5></span>
+                            <span class="menu-title">Cardamom Tea </span>
                             <div class="menu-dots"></div>
                             <span class="menu-price">$4</span>
                         </div>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">House Coffee <h5> (Apple, Mango, Orange)</h5></span>
+                            <span class="menu-title">House Coffee </span>
                             <div class="menu-dots"></div>
                             <span class="menu-price">$4</span>
                         </div>
@@ -421,7 +421,7 @@
                         <div class="menu-header">
                             <span class="menu-title">Barasinghe 8</span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$4</span>
+                            <span class="menu-price">$12</span>
                         </div>
                     </div>
                         <div class="menu-item">
@@ -435,7 +435,7 @@
                         <div class="menu-header">
                             <span class="menu-title">Nepal Ice Strong</span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$4</span>
+                            <span class="menu-price">$12</span>
                         </div>
                     </div>     
                 </div>
@@ -463,6 +463,13 @@
                         <span class="menu-price">$9</span>
                     </div>
                 </div>
+                       <div class="menu-item">
+                    <div class="menu-header">
+                        <span class="menu-title">Light Beer</span>
+                        <div class="menu-dots"></div>
+                        <span class="menu-price">$7</span>
+                    </div>
+                </div> 
                         <div class="menu-item">
                     <div class="menu-header">
                         <span class="menu-title">Non Alcoholic Beer</span>
@@ -479,7 +486,7 @@
             
                 <div class="menu-item">
                     <div class="menu-header">
-                        <span class="menu-title">Bandipur-Biended Matt Scotch Whiskey</span>
+                        <span class="menu-title">Bandipur-Blended Matt Scotch Whiskey</span>
                         <div class="menu-dots"></div>
                         <span class="menu-price">$12</span>
                     </div>
@@ -654,7 +661,7 @@
                             <div class="menu-dots"></div>
                             <span class="menu-price">$9</span>
                         </div>
-                        <p class="menu-description">Traditional Nepali pickle made from potatoes, carrot, radish, cucucumber, chilli, sesame tossed with Himalayan spices and herbs.</p>
+                        <p class="menu-description">Traditional Nepali pickle made from potatoes, carrot, radish, cucumber, chilli, sesame tossed with Himalayan spices and herbs.</p>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
@@ -709,7 +716,7 @@
                         <div class="menu-header">
                             <span class="menu-title">Pangra.</span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$$15</span>
+                            <span class="menu-price">$15</span>
                         </div>
                         <p class="menu-description">Stir fried chicken giblet with tomato, onion, chilli, spices and herbs.</p>
                     </div>
@@ -717,7 +724,14 @@
                     <!-- Page 4 -->
                 <div class="menu-page">
                     <h3></h3> 
-                
+                        <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Chicken Chilli</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$18</span>
+                        </div>
+                        <p class="menu-description">Wok fried pre marinated chicken thigh fillet cooked in special chilli sauce tossed with dried chilli, tomato, capsicum, onion and herbs.</p>
+                    </div>
                     <div class="menu-item">
                         <div class="menu-header">
                             <span class="menu-title">Wo (Bara)</span>
@@ -769,30 +783,21 @@
                         </div>
                         <p class="menu-description">  A traditional Nepali rice crepe "Nepalese pizza", Topped with a savoury blend of minced meat, fresh vegetables, and aromatic spices. <h4> ADD Egg <span class="menu-price"> +$3</span></h4></p>
                     </div>
-                    <div class="menu-item">
+                   <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Bhuttan </span>
+                            <span class="menu-title">Chowmien <h5>Veg/Chicken/Buff</h5></span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$17</span>
+                            <span class="menu-price">$15/$17/$19</span>
                         </div>
-                        <p class="menu-description">Twiced cooked Goat tripe and intestines, stir fried with spices and herbs.
-            </p>
+                        <p class="menu-description">Nepalese style stir-fried noodle sautéed with veggies, garlic and flavouring of Nepalese herbs and spices.</p>
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Fokso</span>
+                            <span class="menu-title">Fried Rice <h5>Veg/Chicken/Buff</h5> </span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$18</span>
+                            <span class="menu-price">$14/$16/$18</span>
                         </div>
-                        <p class="menu-description">Goat lungs filled with spicy batter, sliced and wok fried to make it crispy served with signature house sauce.</p>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-header">
-                            <span class="menu-title">Pangra.</span>
-                            <div class="menu-dots"></div>
-                            <span class="menu-price">$15</span>
-                        </div>
-                        <p class="menu-description">Stir fried chicken giblet with tomato, onion, chilli, spices and herbs.</p>
+                        <p class="menu-description">Stir fried steamed rice fried with  mixed vegetables, spices and Nepalese herbs.</p>
                     </div>
                     </div>
 
@@ -810,31 +815,148 @@
                     </div>
                     <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Jhol MO:MO </span>
+                            <span class="menu-title">Jhol MO:MO <h5>(Veg/Chicken/Buff)</h5></span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$17</span>
+                            <span class="menu-price">$15/$17/$19 </span>
                         </div>
-                        <p class="menu-description">Twiced cooked Goat tripe and intestines, stir fried with spices and herbs.
+                        <p class="menu-description">
             </p>
                     </div>
-                    <div class="menu-item">
+                                         <div class="menu-item">
                         <div class="menu-header">
-                            <span class="menu-title">Fokso</span>
+                            <span class="menu-title">Fried MO:MO <h5>(Veg/Chicken/Buff)</h5> </span>
                             <div class="menu-dots"></div>
-                            <span class="menu-price">$18</span>
+                            <span class="menu-price">$15/$17/$19 </span>
                         </div>
-                        <p class="menu-description">Goat lungs filled with spicy batter, sliced and wok fried to make it crispy served with signature house sauce.</p>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-header">
-                            <span class="menu-title">Pangra.</span>
-                            <div class="menu-dots"></div>
-                            <span class="menu-price">$15</span>
-                        </div>
-                        <p class="menu-description">Stir fried chicken giblet with tomato, onion, chilli, spices and herbs.</p>
-                    </div>
+                        <p class="menu-description">
+            </p>
                     </div>
 
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Chilli MO:MO <h5>(Veg/Chicken/Buff)</h5> </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price"> $18/$20/$22 </span>
+                        </div>
+                        <p class="menu-description">
+            </p>
+                    </div>
+              
+                    </div>
+
+                    <!--page 7-->
+                 
+
+
+            
+                     <div class="menu-page">
+                    <h3>ADD ON</h3>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">MO:MO Sauce</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$2</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">MO:MO Jhol</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$3</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Chowmein/Sausage Sauce</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$2</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                        <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Homemade Hot Sauce</span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$2</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                    
+                    
+                    
+                </div>
+
+                <!--page 8-->
+                   <div class="menu-page">
+                    <h3></h3>
+                      <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Newa Chen Samaya Baji Set <h5>Chicken/Buff</h5> </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$25/$27</span>
+                        </div>
+                        <p class="menu-description">Baji, choila, aalu aachar, aalutama, plainbara, bhuti, laba-mushya-palu, palung, khen and nhya..</p>
+                    </div>
+                      <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Newa Chen Khana Set<h5>Veg/Chicken/Goat</h5> </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$21/$24/$27</span>
+                        </div>
+                        <p class="menu-description">Choice of chicken/goat curry, saag, aalu cauli, kalo daal, tomato
+aachar, rice, dahi and lalmon </p>
+                    </div>
+                
+                    
+                    
+                    
+                </div>
+
+<!--page 9-->
+                   <div class="menu-page">
+                    <h3>KIDS MENU</h3> 
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Chowmien <h5>Veg/Chicken</h5></span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$10/$13</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Nuggets and chips<h5>Nuggets (5pieces) </h5> </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$12</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Chips  </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$8</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                
+                </div>
+<!-- page 10-->
+            <div class="menu-page">
+                    <h3></h3> 
+                    <div class="menu-item">
+                        <div class="menu-header">
+                            <span class="menu-title">Yogurt with Lalmon(2pcs) </span>
+                            <div class="menu-dots"></div>
+                            <span class="menu-price">$10</span>
+                        </div>
+                        <p class="menu-description"></p>
+                    </div>
+                 
+                
+                </div>
             <!-- Add more pages as needed -->
             </div>
             <div class="cta-section">

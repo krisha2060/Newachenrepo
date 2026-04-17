@@ -1,5 +1,4 @@
-   
-      document.addEventListener('DOMContentLoaded',function(){
+document.addEventListener('DOMContentLoaded',function(){
         const sw=document.querySelector('.sidebar-wrapper');
         if(sw&&OverlayScrollbarsGlobal?.OverlayScrollbars)
           OverlayScrollbarsGlobal.OverlayScrollbars(sw,{scrollbars:{theme:'os-theme-light',autoHide:'leave',clickScroll:true}});
@@ -40,7 +39,7 @@
         const total     = bookings.length;
         const confirmed = bookings.filter(b=>b.status==='Confirmed').length;
         const pending   = bookings.filter(b=>b.status==='Pending').length;
-        const revenue   = bookings.filter(b=>b.status==='Payment Done').reduce((s,b)=>s+b.amountRaw,0);
+        const revenue   = bookings.filter(b=>b.status==='Payment Done'|| b.status === 'Delivered').reduce((s,b)=>s+b.amountRaw,0);
 
         document.getElementById('statTotal').textContent     = total;
         document.getElementById('statConfirmed').textContent = confirmed;
@@ -90,10 +89,10 @@
       function confirmDialogYes(){if(confirmCallback)confirmCallback();
       closeConfirmDialog();}
 
-      // ── CURRENT OPEN BOOKING ──────────────────────────────────────
+      // ── CURRENT OPEN BOOKING ───
       let currentBookingId=null;
 
-      // ── CALENDAR ──────────────────────────────────────────────────
+      // ── CALENDAR ───
       function getForDate(y,m,d){
         const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         return bookings.filter(b=>b.date===ds);
@@ -125,7 +124,7 @@
       }
       function changeMonth(dir){curMonth+=dir;if(curMonth>11){curMonth=0;curYear++;}if(curMonth<0){curMonth=11;curYear--;}renderCalendar();}
 
-      // ── CALENDAR MULTI-BOOKING POPUP ──────────────────────────────
+      // ── CALENDAR MULTI-BOOKING POPUP ───
 function openCalPopup(bookingsList, cellEl, e){
     e.stopPropagation();
    
@@ -147,7 +146,12 @@ function openCalPopup(bookingsList, cellEl, e){
     popup.appendChild(title);
 
     bookingsList.forEach(b => {
-        const sc = b.status==='Confirmed'?'rb-confirmed':b.status==='Pending'?'rb-pending':'rb-cancelled';
+          const sc = b.status==='Confirmed'      ? 'rb-confirmed'    :
+           b.status==='Pending'       ? 'rb-pending'      :
+           b.status==='Info Sent'     ? 'rb-infosent'     :  
+           b.status==='Payment Done'  ? 'rb-paymentdone'  :
+           b.status==='Reminder Sent' ? 'rb-remindersent' :
+           b.status==='Delivered'     ? 'rb-delivered'    : 'rb-cancelled';
         const item = document.createElement('div');
         item.style.cssText = 'display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;transition:background 0.12s;';
         item.innerHTML = `
@@ -189,10 +193,12 @@ function openCalPopup(bookingsList, cellEl, e){
         const sorted=[...bookings].filter(b=>b.status!=='Cancelled' && b.status !== 'Payment Done').sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,6);
         document.getElementById('upcomingList').innerHTML=sorted.map(b=>{
           const d=new Date(b.date);
-         const sc = b.status==='Confirmed'   ? 'rb-confirmed'  :
-           b.status==='Pending'     ? 'rb-pending'    :
-           b.status==='Info Sent'   ? 'rb-infosent'   :  
-           b.status==='Payment Done'? 'rb-paymentdone': 'rb-cancelled';        return `<div class="upcoming-item" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
+         const sc = b.status==='Confirmed'      ? 'rb-confirmed'    :
+           b.status==='Pending'       ? 'rb-pending'      :
+           b.status==='Info Sent'     ? 'rb-infosent'     :  
+           b.status==='Payment Done'  ? 'rb-paymentdone'  :
+           b.status==='Reminder Sent' ? 'rb-remindersent' :
+           b.status==='Delivered'     ? 'rb-delivered'    : 'rb-cancelled';        return `<div class="upcoming-item" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
             <div class="up-date-box"><div class="up-day">${d.getDate()}</div><div class="up-mon">${MONTHS[d.getMonth()].slice(0,3)}</div></div>
             <div class="up-info"><div class="up-name">${b.client}</div><div class="up-meta"><i class="bi bi-people" style="font-size:10px"></i> ${b.guests} guests </div></div>
             <span class="up-badge ${sc}">${b.status}</span>
@@ -230,10 +236,12 @@ function renderTable(data){
   const pageData=data.slice(start,start+pageSize);
 
   body.innerHTML=pageData.map(b=>{
-  const sc = b.status==='Confirmed'    ? 'ub-confirmed'   :
-           b.status==='Pending'      ? 'ub-pending'     :
-           b.status==='Payment Done' ? 'ub-paymentdone' :
-           b.status==='Info Sent'    ? 'ub-infosent'    : 'ub-cancelled';  const dd=new Date(b.date).toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'});
+  const sc = b.status==='Confirmed'      ? 'ub-confirmed'    :
+           b.status==='Pending'       ? 'ub-pending'      :
+           b.status==='Payment Done'  ? 'ub-paymentdone'  :
+           b.status==='Info Sent'     ? 'ub-infosent'     :
+           b.status==='Reminder Sent' ? 'ub-remindersent' :
+           b.status==='Delivered'     ? 'ub-delivered'    : 'ub-cancelled';  const dd=new Date(b.date).toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'});
     return `<tr onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'>
       <td><span style="color:#007bff;font-size:11px;font-weight:700">${b.id}</span></td>
       <td><div class="client-cell"><div class="cli-avatar" style="background:${b.color}18;color:${b.color}">${b.initials}</div><div><div class="cli-name">${b.client}</div><div class="cli-email">${b.email}</div></div></div></td>
@@ -316,7 +324,7 @@ function setFilter(f,btn){
 
      
 
-// ── PAYMENT FLOW STATE ────────────────────────────────────────
+// ── PAYMENT FLOW STATE ───
 let confirmStep  = 'idle';
 let paymentStep  = 'idle';
 let sendInfoStep = 'idle';  
@@ -351,10 +359,12 @@ function openModal(b) {
   document.getElementById('mDate').textContent     = new Date(b.date).toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('mVenue').textContent    = b.venue;
 
-const sc = b.status==='Confirmed'    ? 'rb-confirmed'  :
-           b.status==='Pending'      ? 'rb-pending'    :
-           b.status==='Info Sent'    ? 'rb-infosent'   : 
-           b.status==='Payment Done' ? 'rb-paymentdone': 'rb-cancelled';
+const sc = b.status==='Confirmed'      ? 'rb-confirmed'    :
+           b.status==='Pending'       ? 'rb-pending'      :
+           b.status==='Info Sent'     ? 'rb-infosent'     : 
+           b.status==='Payment Done'  ? 'rb-paymentdone'  :
+           b.status==='Reminder Sent' ? 'rb-remindersent' :
+           b.status==='Delivered'     ? 'rb-delivered'    : 'rb-cancelled';
   const sb = document.getElementById('mStatusBadge');
   sb.textContent = b.status;
   sb.className   = 'row-badge ' + sc;
@@ -364,7 +374,15 @@ const sc = b.status==='Confirmed'    ? 'rb-confirmed'  :
     : b.type;
   document.getElementById('mGuests').textContent   = b.guests + ' guests';
   document.getElementById('mContact').textContent  = b.contact;
-  document.getElementById('mAmount').textContent   = b.amount;
+  
+  // Display amount with delivery charge if it exists
+  let amountDisplay = b.amount;
+  if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
+    const deliveryFormatted = parseFloat(b.delivery_charge).toFixed(2);
+    amountDisplay = b.amount + ' + $' + deliveryFormatted + ' (delivery)';
+  }
+  document.getElementById('mAmount').textContent   = amountDisplay;
+  
   document.getElementById('mTime').textContent     = b.time;
   document.getElementById('mBookedOn').textContent = new Date(b.bookedOn).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'});
   document.getElementById('mNotes').textContent    = b.notes;
@@ -388,19 +406,25 @@ if (kidsSection) {
 }
 
   // show/hide buttons
- const btnConfirm  = document.getElementById('btnConfirmBooking');
-const btnCancel   = document.getElementById('btnCancelBooking');
-const btnPayment  = document.getElementById('btnPaymentDone');
-const btnSendInfo = document.getElementById('btnSendInfo');
+const btnConfirm    = document.getElementById('btnConfirmBooking');
+const btnCancel     = document.getElementById('btnCancelBooking');
+const btnPayment    = document.getElementById('btnPaymentDone');
+const btnSendInfo   = document.getElementById('btnSendInfo');
+const btnReminder   = document.getElementById('btnSendReminder');
+const btnDelivered  = document.getElementById('btnMarkDelivered');
 
-// Send Info: only show for Pending
-btnSendInfo.style.display  = b.status === 'Pending'   ? 'flex' : 'none';
-// Confirm: show for Info Sent only (not Pending anymore)
-btnConfirm.style.display   = b.status === 'Info Sent' ? 'flex' : 'none';
+// Send Info: only for Pending
+btnSendInfo.style.display  = b.status === 'Pending'        ? 'flex' : 'none';
+// Confirm: only for Info Sent
+btnConfirm.style.display   = b.status === 'Info Sent'      ? 'flex' : 'none';
 // Payment Done: only for Confirmed
-btnPayment.style.display   = b.status === 'Confirmed' ? 'flex' : 'none';
-// Cancel: hide if already Cancelled or Payment Done
-btnCancel.style.display    = (b.status === 'Cancelled' || b.status === 'Payment Done'||b.status === 'Confirmed') ? 'none' : 'flex';
+btnPayment.style.display   = b.status === 'Reminder Sent'      ? 'flex' : 'none';
+// Send Reminder: only for Payment Done
+btnReminder.style.display  = b.status === 'Confirmed'   ? 'flex' : 'none';
+// Delivered: only for Reminder Sent
+btnDelivered.style.display = b.status === 'Payment Done'  ? 'flex' : 'none';
+// Cancel: hide if terminal statuses
+btnCancel.style.display    = (b.status === 'Cancelled' || b.status === 'Payment Done' || b.status === 'Confirmed' || b.status === 'Reminder Sent' || b.status === 'Delivered') ? 'none' : 'flex';
 
   document.getElementById('ctModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -468,6 +492,7 @@ When making the transfer, please include your name and booking date as the payme
 *Time:* ${b.time}
 *Package:* ${b.type}
 *Guests:* ${b.guests}
+${b.kids_count ? `*Kids count:* ${b.kids_count}` : ''}
 *Address:* ${isDelivery ? b.venue : 'Self Pickup'}
 *Food Selection:*
 ${foodItems}
@@ -517,60 +542,89 @@ function actionConfirm() {
       return;
     }
     const total     = b.amountRaw || 0;
+    const deliveryCharge = b.delivery_charge || 0;
+    const totalWithDelivery = total + deliveryCharge;
+    const minimumAdvance = totalWithDelivery * 0.5; // 50% of total
     const remaining = Math.max(0, total - advanceVal);
 
+    // Build display message for total (with delivery label only if delivery exists)
+    let totalDisplay = `$${totalWithDelivery.toLocaleString()}`;
+    if (deliveryCharge > 0) {
+      totalDisplay += ' (with delivery)';
+    }
+
+    // Check if advance is less than 50%
+    if (advanceVal < minimumAdvance) {
+      showConfirmDialog(
+        'Warning: Low Advance Amount',
+        `Entered amount is less than 50% of total.\n\nTotal: ${totalDisplay}\nRequired minimum: $${minimumAdvance.toLocaleString()}\nEntered amount: $${advanceVal.toLocaleString()}\n\nDo you want to save anyway?`,
+        'Yes, Save', 'btn-ct-warning',
+        'bi-exclamation-circle-fill', '#fff3cd', '#ff9800',
+        () => {
+          // User confirmed they want to save anyway
+          proceedWithAdvanceUpdate(b, advanceVal, remaining);
+        }
+      );
+      return;
+    }
+
+    // If advance is >= 50%, show the normal confirmation dialog
     showConfirmDialog(
       'Confirm Booking?',
-      `Advance: $${advanceVal.toLocaleString()} | Remaining: $${remaining.toLocaleString()}`,
+      `Advance: $${advanceVal.toLocaleString()}`,
       'Yes, Confirm', 'btn-ct-primary',
       'bi-check-circle-fill', '#e9f7ec', '#28a745',
-   () => {
-        updateBookingStatusInDB(b.id, 'Confirmed', {
-          advance_amount:   advanceVal,
-          remaining_amount: remaining
-        }, () => {
-          const phone          = b.contact.replace(/[^0-9]/g, '');
-          const isDelivery     = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
-          // reuse delivery charge saved during Send Info step
-          const deliveryCharge = b.delivery_charge || 0;
-
-          const mainItems = (b.menu1 && b.menu1.length)
-            ? `\n*Menu Items:*\n${b.menu1.map(i => `  • ${i}`).join('\n')}`
-            : '';
-          const addons = (b.menu && b.menu.length)
-            ? `\n*Add-Ons:*\n${b.menu.map(i => `  • ${i}`).join('\n')}`
-            : '';
-          const kidsSection = (b.kids_items && b.kids_items.length)
-            ? `\n*Kids Package (${b.kids_count} kids):*\n${b.kids_items.map(i => `  • ${i}`).join('\n')}`
-            : '';
-          const deliveryLine = isDelivery
-            ? `\n*Delivery Address:* ${b.venue}\n*Delivery Charge:* $${deliveryCharge}`
-            : '';
-
-       const msg = encodeURIComponent(
-  `*Hello ${b.client}, your booking is confirmed!* \n\n` +
-  `*BOOKING DETAILS*\n` +
-  `*Name:* ${b.client}\n` +
-  `*Date:* ${b.date}\n` +
-  `*Time:* ${b.time}\n` +
-  `*Package:* ${b.type}\n` +
-  `*Guests:* ${b.guests}\n` +
-  `*Address:* ${isDelivery ? b.venue : 'Self Pickup'}\n` +
-  `*Food Selection:*\n${[...(b.menu1||[]), ...(b.menu||[])].map(i => `  • ${i}`).join('\n')}` +
-  (b.kids_items && b.kids_items.length ? `\n   *Kids (${b.kids_count}):* ${b.kids_items.map(i => `• ${i}`).join('\n ')}` : '') +
-  `\n\n*Total Amount:* ${b.amount}\n` +
-  (isDelivery ? `*Delivery Charge:* $${deliveryCharge.toLocaleString()}\n` : '') +
-  `*Sub Total:* $${(isDelivery ? (b.amountRaw + deliveryCharge) : b.amountRaw).toLocaleString()}\n` +
-  `*Advance Paid:* $${advanceVal.toLocaleString()}\n` +
-  `*Remaining:* $${(isDelivery ? (remaining + deliveryCharge) : remaining).toLocaleString()}\n\n` +
-  `Thank you, and we look forward to make your event special with our delicious catering.`
-);
-
-          window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-        });
+      () => {
+        proceedWithAdvanceUpdate(b, advanceVal, remaining);
       }
     );
   }
+}
+
+// ── Helper: Process advance amount update and send confirmation ─────
+function proceedWithAdvanceUpdate(b, advanceVal, remaining) {
+  updateBookingStatusInDB(b.id, 'Confirmed', {
+    advance_amount:   advanceVal,
+    remaining_amount: remaining
+  }, () => {
+    const phone          = b.contact.replace(/[^0-9]/g, '');
+    const isDelivery     = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+    const deliveryCharge = b.delivery_charge || 0;
+
+    const mainItems = (b.menu1 && b.menu1.length)
+      ? `\n*Menu Items:*\n${b.menu1.map(i => `  • ${i}`).join('\n')}`
+      : '';
+    const addons = (b.menu && b.menu.length)
+      ? `\n*Add-Ons:*\n${b.menu.map(i => `  • ${i}`).join('\n')}`
+      : '';
+    const kidsSection = (b.kids_items && b.kids_items.length)
+      ? `\n*Kids Package (${b.kids_count} kids):*\n${b.kids_items.map(i => `  • ${i}`).join('\n')}`
+      : '';
+    const deliveryLine = isDelivery
+      ? `\n*Delivery Address:* ${b.venue}\n*Delivery Charge:* $${deliveryCharge}`
+      : '';
+
+    const msg = encodeURIComponent(
+      `*Hello ${b.client}, your booking is confirmed!* \n\n` +
+      `*BOOKING DETAILS*\n` +
+      `*Name:* ${b.client}\n` +
+      `*Date:* ${b.date}\n` +
+      `*Time:* ${b.time}\n` +
+      `*Package:* ${b.type}\n` +
+      `*Guests:* ${b.guests}\n` +
+      `*Address:* ${isDelivery ? b.venue : 'Self Pickup'}\n` +
+      `*Food Selection:*\n${[...(b.menu1||[]), ...(b.menu||[])].map(i => `  • ${i}`).join('\n')}` +
+      (b.kids_items && b.kids_items.length ? `\n   *Kids count (${b.kids_count}):* ${b.kids_items.map(i => `• ${i}`).join('\n ')}` : '') +
+      `\n\n*Total Amount:* ${b.amount}\n` +
+      (isDelivery ? `*Delivery Charge:* $${deliveryCharge.toLocaleString()}\n` : '') +
+      `*Sub Total:* $${(isDelivery ? (b.amountRaw + deliveryCharge) : b.amountRaw).toLocaleString()}\n` +
+      `*Advance Paid:* $${advanceVal.toLocaleString()}\n` +
+      `*Remaining:* $${(isDelivery ? (remaining + deliveryCharge) : remaining).toLocaleString()}\n\n` +
+      `Thank you, and we look forward to make your event special with our delicious catering.`
+    );
+
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  });
 }
 
 function actionCancel() {
@@ -585,6 +639,78 @@ function actionCancel() {
   );
 }
 
+// ── SEND REMINDER ─
+function actionSendReminder() {
+  const b = bookings.find(x => x.id === currentBookingId);
+  if (!b) return;
+
+  let remaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+    ? parseFloat(b.remaining_amount)
+    : parseFloat(b.amountRaw || 0);
+
+  // Add delivery charge if it exists
+  if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
+    remaining += parseFloat(b.delivery_charge);
+  }
+
+  const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+
+  // Build date display: tomorrow's date based on event date
+  const eventDate = new Date(b.date);
+  const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const deliveryOrPickup = isDelivery ? 'delivered' : 'ready for pick up';
+
+  const msg = encodeURIComponent(
+`Namaste ${b.client},
+Your food will be ${deliveryOrPickup} by ${b.time} tomorrow (${dateStr}).
+You have an outstanding balance of $${Number(remaining).toLocaleString()}.
+Could you please send us a screenshot of a receipt once the transaction has been completed. We would really appreciate it if the balance could be cleared by today.
+Thank you
+Newa Chen & Catering Services.`
+  );
+
+  const phone = b.contact.replace(/[^0-9]/g, '');
+
+  showConfirmDialog(
+    'Send Reminder?',
+    `Send a WhatsApp payment reminder to ${b.client} ?`,
+    'Yes, Send Reminder', 'btn-ct-reminder',
+    'bi-whatsapp', '#fff3e0', '#c2660a',
+    () => {
+      updateBookingStatusInDB(b.id, 'Reminder Sent', {}, () => {
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      });
+    }
+  );
+}
+
+// ── MARK DELIVERED 
+function actionMarkDelivered() {
+  const b = bookings.find(x => x.id === currentBookingId);
+  if (!b) return;
+
+  const msg = encodeURIComponent(
+`Namaste ${b.client},
+We hope you enjoyed the food. We would love to hear your feedback or any suggestions you may have.
+Thank you,
+Newa Chen & Catering Services.`
+  );
+
+  const phone = b.contact.replace(/[^0-9]/g, '');
+
+  showConfirmDialog(
+    'Mark as Delivered?',
+    `Send a thank-you WhatsApp message to ${b.client} and mark as Delivered?`,
+    'Yes, Mark Delivered', 'btn-ct-delivered',
+    'bi-truck', '#e8f5e9', '#2e7d32',
+    () => {
+      updateBookingStatusInDB(b.id, 'Delivered', {}, () => {
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      });
+    }
+  );
+}
+
 
 // ── PAYMENT DONE (two-step) ───────────────────────────────────
 function actionPaymentDone() {
@@ -592,13 +718,17 @@ function actionPaymentDone() {
   if (!b) return;
 
   if (paymentStep === 'idle') {
-    // STEP 1 — show remaining panel pre-filled
+    // STEP 1 — show remaining panel pre-filled (with delivery charge included)
     paymentStep = 'awaiting-payment';
     document.getElementById('advancePanel').style.display = 'none';
     confirmStep = 'idle';
-    const currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+    let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
       ? b.remaining_amount
       : b.amountRaw;
+    // Add delivery charge if it exists
+    if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
+      currentRemaining += parseFloat(b.delivery_charge);
+    }
     document.getElementById('remainingAmountInput').value = currentRemaining;
     document.getElementById('remainingBreakdown').innerHTML =
       `<i class="bi bi-info-circle"></i> Current remaining: <strong> ${Number(currentRemaining).toLocaleString()}</strong>. `;
@@ -621,9 +751,13 @@ function actionPaymentDone() {
       showToast('Please enter a valid payment amount.', 'bi-exclamation-triangle-fill', '#e6a817');
       return;
     }
-    const currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
+    let currentRemaining = (b.remaining_amount !== undefined && b.remaining_amount !== null)
       ? b.remaining_amount
       : b.amountRaw;
+    // Add delivery charge if it exists
+    if (b.delivery_charge && parseFloat(b.delivery_charge) > 0) {
+      currentRemaining += parseFloat(b.delivery_charge);
+    }
     const newRemaining = Math.max(0, currentRemaining - payNow);
 
     showConfirmDialog(
@@ -772,5 +906,19 @@ function updateBookingStatusInDB(bookingId, newStatus, extraData = {}, onSuccess
 
       document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeEdit();closeConfirmDialog();}});
 
+      
+
       refreshAll();
-   
+
+// Add event listeners after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const reminderBtn = document.getElementById('btnSendReminder');
+    const deliveredBtn = document.getElementById('btnMarkDelivered');
+    
+    if (reminderBtn) {
+        reminderBtn.addEventListener('click', actionSendReminder);
+    }
+    if (deliveredBtn) {
+        deliveredBtn.addEventListener('click', actionMarkDelivered);
+    }
+});

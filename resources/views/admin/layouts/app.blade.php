@@ -12,6 +12,18 @@
 
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ asset('admin/css/custom.css') }}">
+    <style>
+      /* Keep Dashboard menu always open and prevent toggle */
+      .sidebar-menu > .nav-item.menu-open {
+        pointer-events: auto;
+      }
+      
+      .sidebar-menu > .nav-item.menu-open > .nav-treeview {
+        display: block !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+    </style>
   </head>
 
   <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
@@ -99,16 +111,27 @@
           <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
               <li class="nav-item menu-open">
-                <a href="#" class="nav-link active">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                   <i class="nav-icon bi bi-speedometer"></i>
                   <p>Dashboard<i class="nav-arrow bi bi-chevron-right"></i></p>
                 </a>
                 <ul class="nav nav-treeview">
-                  <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon bi bi-circle"></i><p>Bookings</p></a></li>
+                  <li class="nav-item"><a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="nav-icon bi bi-circle"></i><p>Bookings</p></a></li>
+                <!--  <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>Dashboard v2</p></a></li>
+                  <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>Dashboard v3</p></a></li>-->
+                </ul>
+                  <ul class="nav nav-treeview">
+                  <li class="nav-item"><a href="{{ route('admin.datewisebookings') }}" class="nav-link {{ request()->routeIs('admin.datewisebookings') ? 'active' : '' }}"><i class="nav-icon bi bi-file-earmark-bar-graph"></i><p>Reports</p></a></li>
                 <!--  <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>Dashboard v2</p></a></li>
                   <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>Dashboard v3</p></a></li>-->
                 </ul>
               </li>
+              <!-- <li class="nav-item">
+                <a href="{{ route('admin.datewisebookings') }}" class="nav-link {{ request()->routeIs('admin.datewisebookings') ? 'active' : '' }}">
+                  <i class="nav-icon bi bi-file-earmark-bar-graph"></i>
+                  <p>Reports</p>
+                </a>
+              </li> -->
              <!-- <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-palette"></i><p>Theme Generate</p></a></li>
               <li class="nav-item">
                 <a href="#" class="nav-link"><i class="nav-icon bi bi-box-seam-fill"></i><p>Widgets<i class="nav-arrow bi bi-chevron-right"></i></p></a>
@@ -166,7 +189,7 @@
       crossorigin="anonymous"
     ></script>
     <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-        <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta3/dist/js/adminlte.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta3/dist/js/adminlte.min.js"></script>
  
   
 
