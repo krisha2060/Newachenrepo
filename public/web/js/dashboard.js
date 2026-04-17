@@ -679,7 +679,7 @@ remaining = remaining <= 0 ? 0 : remaining;
 
 const msg = encodeURIComponent(
 `Namaste ${b.client},
-Your food will be ${deliveryOrPickup} by ${b.time} tomorrow (${eventDate}).
+Your food will be ${deliveryOrPickup} by ${b.time} tomorrow (${dateStr}).
 ${balanceLine}
 Could you please send us a screenshot of a receipt once the transaction has been completed. We would really appreciate it if the balance could be cleared by today.
 Thank you
