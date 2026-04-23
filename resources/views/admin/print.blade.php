@@ -9,7 +9,7 @@
         * { box-sizing:border-box; margin:0; padding:0; }
         body { background:#fff; font-family:'DM Sans',Arial,sans-serif; color:#000; padding:20px; }
         .invoice-container { max-width:950px; margin:0 auto; background:#fff; padding:40px; box-shadow:0 0 20px rgba(0,0,0,0.1); }
-        .invoice-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:2px solid #000; padding-bottom:20px; }
+        .invoice-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; border-bottom:2px solid #000;}
         .company-info h1 { font-size:32px; color:#000; margin:0 0 5px 0; letter-spacing:-1px; }
         .company-info p { color:#000; font-size:13px; margin:2px 0; }
         .invoice-title { text-align:right; }
@@ -22,9 +22,9 @@
         .badge-cancelled { background:#e8e8e8; color:#000; border:1px solid #000; }
         .badge-paymentdone { background:#e8e8e8; color:#000; border:1px solid #000; }
         .badge-infosent { background:#e8e8e8; color:#000; border:1px solid #000; }
-        .bill-sections { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-bottom:40px; }
-        .bill-section h3 { font-size:11px; font-weight:700; text-transform:uppercase; color:#000; letter-spacing:1px; margin-bottom:12px; border-bottom:1px solid #000; padding-bottom:8px; }
-        .bill-section p { font-size:14px; color:#000; margin:5px 0; line-height:1.6; }
+        .bill-sections { display:grid; grid-template-columns:1fr 1fr; gap:40px;  }
+        .bill-section h3 { font-size:11px; font-weight:700; text-transform:uppercase; color:#000; letter-spacing:1px; margin-bottom:8px; border-bottom:1px solid #000; padding-bottom:5px; }
+        .bill-section p { font-size:12px; color:#000; margin:5px 0; line-height:1.6; }
         .bill-section .label { color:#000; font-size:12px; font-weight:600; }
         .items-table { width:100%; border-collapse:collapse; margin-bottom:30px; }
         .items-table thead { background:#e8e8e8; border-bottom:2px solid #000; }
@@ -39,6 +39,28 @@
         .btn-print:hover { background:#333; }
         .btn-close { background:#e8e8e8; color:#000; }
         .btn-close:hover { background:#ccc; }
+        .amountprice{ font-size:12px; color:#000; border-bottom:1px solid #b6b5b5; padding-bottom:10px;}
+        @media print {
+  
+    @page {
+        margin: 0;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    header, footer {
+        display: none;
+    }
+    
+  
+    @page {
+        size: auto;
+        margin: 0.5cm;
+    }
+}
         @media print { body { background:#fff; padding:0; } .invoice-container { box-shadow:none; padding:0; } .print-controls { display:none; } .invoice-container { max-width:100%; } }
     </style>
 </head>
@@ -50,23 +72,18 @@
 
     <div class="print-controls">
         <button class="btn btn-close" onclick="window.close()"><i class="bi bi-x-lg"></i> Close</button>
-        <button class="btn btn-print" onclick="window.print()"><i class="bi bi-printer"></i> Print Invoice</button>
+        <button class="btn btn-print" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
     </div>
 
     <div class="invoice-container">
         <!-- Header -->
         <div class="invoice-header">
             <div class="company-info">
-                <h1>NewaChen</h1>
-                <p><strong>Catering Services</strong></p>
-                <p>Email: newa.catering.sydney@gmail.com</p>
-                <p>Phone: +61 451 211 959</p>
+                <h3>NewaChen</h3>
             </div>
             <div class="invoice-title">
-                <h2>INVOICE</h2>
                 <div class="invoice-number">{{ $booking['id'] }}</div>
-                <div class="invoice-dates">
-                    <div><strong>Invoice Date:</strong> {{ $booking['created_at'] }}</div>
+                <!-- <div class="invoice-dates">
                     <div><strong>Event Date:</strong> {{ date('M d, Y', strtotime($booking['date'])) }}</div>
                 </div>
                 @php
@@ -79,43 +96,78 @@
                         default        => ''
                     };
                 @endphp
-                <div class="status-badge {{ $badgeClass }}">{{ $booking['status'] }}</div>
+                <div class="status-badge {{ $badgeClass }}">{{ $booking['status'] }}</div> -->
             </div>
         </div>
 
         <!-- Bill To Section -->
         <div class="bill-sections">
             <div class="bill-section">
-                <h3>Bill To</h3>
-                <p><strong>{{ $booking['client'] }}</strong></p>
-                <p class="label">Contact:</p>
-                <p>{{ $booking['contact'] }}</p>
-                @if(isset($booking['email']))
-                <p class="label">Email:</p>
-                <p>{{ $booking['email'] }}</p>
-                @endif
-                <p class="label">Delivery Address:</p>
-                <p>{{ $booking['venue'] }}</p>
+                <p><strong>Name:</strong> <strong>{{ $booking['client'] }}</strong></p>
+                <p><strong>Contact:</strong>
+                {{ $booking['contact'] }}</p>
+                <!-- @if(isset($booking['email']))
+                <p class="label"><strong>Email:</strong>
+                {{ $booking['email'] }}</p>
+                @endif -->
+                <p><strong>Address:</strong>
+                {{ $booking['venue'] }}</p>
+                <p><strong>Package:</strong> {{ $booking['package'] }}</p>
             </div>
             <div class="bill-section">
-                <h3>Event Details</h3>
+                <!-- <h3>Event Details</h3> -->
                 <p><strong>Date:</strong> {{ date('l, F j, Y', strtotime($booking['date'])) }}</p>
                 <p><strong>Time:</strong> {{ $booking['time'] ?? '—' }}</p>
                 <p><strong>Guest Count:</strong> {{ $booking['guests'] }} {{ $booking['guests'] == 1 ? 'guest' : 'guests' }}</p>
-                <p><strong>Package:</strong> {{ $booking['package'] }}</p>
+                
                 @if(isset($booking['kids_count']) && $booking['kids_count'] > 0)
                     <p><strong>Kids Count:</strong> {{ $booking['kids_count'] }}</p>
                 @endif
             </div>
+            
         </div>
+          @if($showAmount)
+
+    
+                <div class="amountprice" style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
+                    <div style="display:flex; justify-content:space-between;">
+                       <strong>Item Total:</strong>
+                        <span>${{ number_format($booking['amountRaw'], 2) }}</span>
+                    </div>
+                    @if(isset($booking['delivery_charge']) && $booking['delivery_charge'] > 0)
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>Delivery Charge: </strong>
+                        <span>+${{ number_format($booking['delivery_charge'], 2) }}</span>
+                    </div>
+                    @endif
+                    <div style="display:flex; justify-content:space-between;background:#e8e8e8; border-radius:5px;">
+                        <strong>Total Amount: </strong>
+                        <strong>${{ number_format($booking['amountRaw'] + ($booking['delivery_charge'] ?? 0), 2) }}</strong>
+                    </div>
+                    @if(isset($booking['advance_amount']) && $booking['advance_amount'] > 0)
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                        <strong>Advance Paid:</strong>
+                        <span>${{ number_format($booking['advance_amount'], 2) }}</span>
+                    </div>
+                    @endif
+                    @if(isset($booking['remaining_amount']) && $booking['remaining_amount'] > 0)
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                        <strong>Remaining Balance: </strong>
+                        <span>${{ number_format($booking['remaining_amount'], 2) }}</span>
+                    </div>
+                    @endif
+                </div>
+                
 
         <!-- Items Table -->
         <table class="items-table">
             <thead>
+                
                 <tr>
-                    <th>Description</th>
+<h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i>Order Items</h4>
+                    <!-- <th>Items</th> -->
                     @if($showAmount)
-                    <th style="text-align:right;width:120px">Amount</th>
+                    <!-- <th style="text-align:right;width:120px">Amount</th> -->
                     @endif
                 </tr>
             </thead>
@@ -129,7 +181,15 @@
                         @endif
                     </tr>
                     <tr>
-                        <td style="padding-left:30px;font-size:12px;" @if(!$showAmount) colspan="1" @endif>{{ implode(', ', $booking['menu1']) }}</td>
+                        <td style="padding-left:30px;font-size:12px;" @if(!$showAmount) colspan="1" @endif>
+                            @if(is_array($booking['menu1']))
+                                @foreach($booking['menu1'] as $menuItem)
+                                    • {{ $menuItem }}<br>
+                                @endforeach
+                            @else
+                                • {{ $booking['menu1'] }}
+                            @endif
+                        </td>
                         @if($showAmount)
                         <td style="text-align:right;"></td>
                         @endif
@@ -139,17 +199,20 @@
                 <!-- Add-on Items -->
                 @if(!empty($booking['menu']))
                     <tr>
-                        <td colspan="{{ $showAmount ? 2 : 1 }}" style="font-weight:700;background:#e8e8e8;padding:10px 12px;border-bottom:1px solid #000;">
+                        <td colspan="{{ $showAmount ? 2 : 1 }}" style="font-weight:700;background:#e8e8e8;padding:10px 12px;">
                             <i class="bi bi-plus-circle"></i> Add-on Items
                         </td>
                     </tr>
+                      <tr>
                     @foreach($booking['menu'] as $item)
-                        <tr>
-                            <td style="padding-left:30px;">{{ is_array($item) ? $item['name'] : $item }}</td>
-                            @if($showAmount)
-                            <td style="text-align:right;font-weight:600;">${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}</td>
-                            @endif
-                        </tr>
+                  
+                        <td style="padding-left:30px;">
+                            • {{ is_array($item) ? $item['name'] : $item }}
+                        </td>
+                        @if($showAmount)
+                        <td style="text-align:right;font-weight:600;">${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}</td>
+                        @endif
+                    </tr>
                     @endforeach
                 @endif
 
@@ -162,58 +225,36 @@
                         @endif
                     </tr>
                     <tr>
-                        <td style="padding-left:30px;font-size:12px;">{{ implode(', ', $booking['kids_items']) }}</td>
+                        <td style="padding-left:30px;font-size:12px;">
+                            @if(is_array($booking['kids_items']))
+                                @foreach($booking['kids_items'] as $kidsItem)
+                                    • {{ $kidsItem }}<br>
+                                @endforeach
+                            @else
+                                • {{ $booking['kids_items'] }}
+                            @endif
+                        </td>
                         @if($showAmount)
                         <td style="text-align:right;"></td>
                         @endif
                     </tr>
                 @endif
 
-                @if($showAmount)
-                <!-- Charges Summary -->
-                <tr style="background:#e8e8e8;border-top:1px solid #000;">
-                    <td colspan="2" style="padding:14px 12px;font-weight:600;border:none;"></td>
-                </tr>
-                <tr>
-                    <td><strong>Subtotal</strong></td>
-                    <td style="text-align:right;font-weight:600;">${{ number_format($booking['amountRaw'], 2) }}</td>
-                </tr>
-                @if(isset($booking['delivery_charge']) && $booking['delivery_charge'] > 0)
-                    <tr>
-                        <td>Delivery Charge</td>
-                        <td style="text-align:right;">+${{ number_format($booking['delivery_charge'], 2) }}</td>
-                    </tr>
-                @endif
-                <tr style="background:#e8e8e8;border-top:1px solid #000;border-bottom:2px solid #000;">
-                    <td style="font-weight:700;">TOTAL AMOUNT DUE</td>
-                    <td style="text-align:right;font-weight:700;font-size:18px;">${{ number_format($booking['amountRaw'] + ($booking['delivery_charge'] ?? 0), 2) }}</td>
-                </tr>
-                @if(isset($booking['advance_amount']) && $booking['advance_amount'] > 0)
-                    <tr>
-                        <td><strong>Advance Paid</strong></td>
-                        <td style="text-align:right;font-weight:600;">${{ number_format($booking['advance_amount'], 2) }}</td>
-                    </tr>
-                @endif
-                @if(isset($booking['remaining_amount']) && $booking['remaining_amount'] > 0)
-                    <tr>
-                        <td><strong>Remaining Balance</strong></td>
-                        <td style="text-align:right;font-weight:700;">${{ number_format($booking['remaining_amount'], 2) }}</td>
-                    </tr>
-                @endif
-                @endif {{-- end showAmount --}}
+             
+@endif{{-- end showAmount --}}
             </tbody>
         </table>
 
         <!-- Special Notes -->
         @if(!empty($booking['notes']))
             <div style="background:#e8e8e8;padding:15px;border-radius:5px;margin-bottom:30px;border-left:3px solid #000;">
-                <strong style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Special Notes</strong>
-                <p style="margin-top:8px;font-size:13px;line-height:1.6;">{{ $booking['notes'] }}</p>
+            
+                <p style="margin-top:8px;font-size:13px;line-height:1.6;">    <strong style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Special Notes: </strong>{{ $booking['notes'] }}</p>
             </div>
         @endif
 
         <!-- Payment Status -->
-        @if($booking['status'] === 'Payment Done')
+        <!-- @if($booking['status'] === 'Payment Done')
             <div class="payment-notice">
                 <i class="bi bi-check-circle"></i> <strong>Payment Received</strong> - Invoice fully paid
             </div>
@@ -221,14 +262,14 @@
             <div class="payment-notice">
                 <i class="bi bi-exclamation-circle"></i> <strong>Pending</strong> - Awaiting confirmation
             </div>
-        @endif
+        @endif -->
 
         <!-- Footer -->
-        <div class="invoice-footer">
+        <!-- <div class="invoice-footer">
             <p><strong>Thank you for choosing NewaChen!</strong></p>
             <p>For any inquiries, please contact us at newa.catering.sydney@gmail.com or call +61 451 211 959</p>
             <p style="margin-top:15px;font-size:11px;">This is a computer-generated invoice. No signature is required.</p>
-        </div>
+        </div> -->
     </div>
     <script>
     

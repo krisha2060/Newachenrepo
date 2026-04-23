@@ -42,7 +42,10 @@
                             <span class="price">${{ $package['price'] }}</span>
                             <span class="per">pp</span>
                         </div>
+                        <div>@if($package['number']==4)<span>( Minimum 25 guests )</span>@endif</div>
                     </div>
+                     
+                    
                     <div class="package-divider"></div>
                     <ul class="package-menu">
                         @foreach ($package['items'] as $item)

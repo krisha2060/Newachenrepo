@@ -118,9 +118,12 @@
                 @foreach($catering['packages'] as $pkg)
                     <div class="mn-pkg">
                         <div class="mn-pkg__top">
-                            <div class="mn-pkg__num">{{ $pkg['number'] }}</div>
+                            <div class="mn-pkg__num">{{ $pkg['number'] }} </div>
                             <div class="mn-pkg__price">${{ $pkg['price'] }} </div>
+                
                         </div>
+                        <div>@if($pkg['number']==4)<span>( "Minimum 25 guests" )</span>@endif</div>
+                        <br>
                         <ul>
                             @foreach($pkg['items'] as $item)
                                 <li>{{ $item }}</li>
@@ -180,13 +183,13 @@
                 <h1 style="display:flex; align-items:center; justify-content:space-between;">
                     <span class="menu-column">Lunch Menu</span>
 
-                    <span style="text-align:center; cursor:pointer; line-height:1;" onclick="lunch.next()">
+                    <!-- <span style="text-align:center; cursor:pointer; line-height:1;" onclick="lunch.next()">
                         <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
                         <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
                            Next
                         </span>
 
-                    </span>
+                    </span> -->
                 </h1>
             </div>
             <br>
@@ -309,7 +312,12 @@
                 </div>
                 
                 
-
+               <span style="text-align:center; cursor:pointer; line-height:1; display:block;" onclick="lunch.next()">
+    <img src="{{asset('web/images/arrowleft.png')}}" alt="Next" style="width:150px; display:inline-block;">
+    <div style="font-size:15px; font-weight:500; margin-top:-8px;">
+        Next
+    </div>
+</span>
             <!--<div style="display:flex; justify-content:space-between; align-items:center;">
                 <img src="/images/arrow1.png" alt="Prev" style="cursor:pointer; width:150px;" onclick="prevPage()">
                 <img src="/images/arrowleft.png" alt="Next" style="cursor:pointer; width:150px;" onclick="nextPage()">
@@ -342,12 +350,12 @@
                         <h1 style="display:flex; align-items:center; justify-content:space-between;">
                             <span class="menu-column">Drinks</span>
 
-                                <span style="text-align:center; cursor:pointer; line-height:1;" onclick="drinks.next()">
+                                <!-- <span style="text-align:center; cursor:pointer; line-height:1;" onclick="drinks.next()">
                                     <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
                                 <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
                                 Next
                                 </span>
-                            </span>
+                            </span> -->
                         </h1>
                     </div>
                     <br>
@@ -577,7 +585,12 @@
             
             </div>
 
-        
+                       <span style="text-align:center; cursor:pointer; line-height:1; display:block;" onclick="drinks.next()">
+    <img src="{{asset('web/images/arrowleft.png')}}" alt="Next" style="width:150px; display:inline-block;">
+    <div style="font-size:15px; font-weight:500; margin-top:-8px;">
+        Next
+    </div>
+</span>
 
         <!--<div style="display:flex; justify-content:space-between; align-items:center;">
             <img src="/images/arrow1.png" alt="Prev" style="cursor:pointer; width:150px;" onclick="prevPage()">
@@ -596,12 +609,12 @@
                 <h1 style="display:flex; align-items:center; justify-content:space-between;">
                     <span class="menu-column">Dinner Menu</span>
 
-                    <span style="text-align:center; cursor:pointer; line-height:1;" onclick="dinner.next()">
+                    <!-- <span style="text-align:center; cursor:pointer; line-height:1;" onclick="dinner.next()">
                         <img src="{{asset('web\images\arrowleft.png')}}" alt="Next" style="width:150px; display:block;">
                         <span style="font-size:15px; font-weight:500; margin-top:-8px; display:block;">
                            Next
                         </span>
-                    </span>
+                    </span> -->
                 </h1>
             </div>
             <br>
@@ -957,6 +970,13 @@ aachar, rice, dahi and lalmon </p>
                  
                 
                 </div>
+
+               <span style="text-align:center; cursor:pointer; line-height:1; display:block;" onclick="dinner.next()">
+    <img src="{{asset('web/images/arrowleft.png')}}" alt="Next" style="width:150px; display:inline-block;">
+    <div style="font-size:15px; font-weight:500; margin-top:-8px;">
+        Next
+    </div>
+</span>
             <!-- Add more pages as needed -->
             </div>
             <div class="cta-section">

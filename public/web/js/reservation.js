@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Set minimum date to 1 week from today
 const today = new Date();
 const minDate = new Date(today);
-minDate.setDate(today.getDate() + 7); // Add 7 days
+minDate.setDate(today.getDate() + 2); // Add 1 day
 const minDateStr = minDate.toISOString().split('T')[0];
 
 dateInput.min = minDateStr;
