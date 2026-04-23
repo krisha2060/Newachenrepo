@@ -167,8 +167,8 @@
   {{-- PRINT SINGLE: with/without amount modal --}}
   <div id="printAmountModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-      <div style="font-size:16px;font-weight:700;color:#1a2035;margin-bottom:6px;"><i class="bi bi-printer"></i> Print Invoice</div>
-      <div style="font-size:13px;color:#6c757d;margin-bottom:22px;">Choose how you want to print this invoice:</div>
+      <div style="font-size:16px;font-weight:700;color:#1a2035;margin-bottom:6px;"><i class="bi bi-printer"></i> Print</div>
+      <div style="font-size:13px;color:#6c757d;margin-bottom:22px;">Choose how you want to print this</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button id="printWithAmountBtn" class="dw-btn dw-btn-primary" style="justify-content:center;padding:12px 20px;">
           <i class="bi bi-currency-dollar"></i> Print with Amount

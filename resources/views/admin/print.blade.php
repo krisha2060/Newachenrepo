@@ -130,17 +130,17 @@
 
     
                 <div class="amountprice" style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
-                    <div style="display:flex; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
                        <strong>Item Total:</strong>
                         <span>${{ number_format($booking['amountRaw'], 2) }}</span>
                     </div>
                     @if(isset($booking['delivery_charge']) && $booking['delivery_charge'] > 0)
-                    <div style="display:flex; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
                         <strong>Delivery Charge: </strong>
                         <span>+${{ number_format($booking['delivery_charge'], 2) }}</span>
                     </div>
                     @endif
-                    <div style="display:flex; justify-content:space-between;background:#e8e8e8; border-radius:5px;">
+                    <div style="display:flex; justify-content:space-between;background:#e8e8e8; border-radius:5px; margin-top:5px;">
                         <strong>Total Amount: </strong>
                         <strong>${{ number_format($booking['amountRaw'] + ($booking['delivery_charge'] ?? 0), 2) }}</strong>
                     </div>
