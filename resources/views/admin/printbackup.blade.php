@@ -38,8 +38,8 @@
         .btn-print { background:#000; color:#fff; }
         .btn-print:hover { background:#333; }
         .btn-close { background:#e8e8e8; color:#000; }
-        .btn-close:hover { background:#000000; }
-        .amountprice{ font-size:12px; color:#000; border-bottom:1px solid #000000; padding-bottom:10px;}
+        .btn-close:hover { background:#ccc; }
+        .amountprice{ font-size:12px; color:#000; border-bottom:1px solid #b6b5b5; padding-bottom:10px;}
         @media print {
   
     @page {
@@ -129,7 +129,7 @@
           @if($showAmount)
 
     
-                <div class="amountprice" style="margin-top:20px; border-top:1px solid #000000; padding-top:15px;">
+                <div class="amountprice" style="margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
                     <div style="display:flex; justify-content:space-between; margin-top:5px;">
                        <strong>Item Total:</strong>
                         <span>${{ number_format($booking['amountRaw'], 2) }}</span>
@@ -173,90 +173,78 @@
             </thead>
             <tbody>
                 <!-- Main Package Items -->
-              <h4 style="margin-top:20px; margin-bottom:10px;">
-    <i class="bi bi-list-ul"></i> Order Items
-</h4>
 
-<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:10px;">
+                 
 
-    <!-- Main Package -->
-    <div style="padding:15px;">
-        <h5 style="margin-bottom:10px; border-bottom:1px solid #000000; padding-bottom:5px;">
-            <i class="bi bi-egg-fried"></i> Main Item
-        </h5>
-
-        @if(!empty($booking['menu1']))
-            <p style="font-weight:700; margin-bottom:8px;">
-                {{ $booking['package'] }}
-                @if($showAmount)
-                    (${{ isset($booking['package_price']) ? number_format($booking['package_price'], 2) : '0.00' }})
+                @if(!empty($booking['menu1']))
+                    <tr>
+                        <td style="font-weight:700;"><i class="bi bi-egg-fried"></i> {{ $booking['package'] }}</td>
+                        @if($showAmount)
+                        <td style="text-align:right;font-weight:700;">${{ isset($booking['package_price']) ? number_format($booking['package_price'], 2) : '0.00' }}</td>
+                        @endif
+                    </tr>
+                    <tr>
+                        <td style="padding-left:30px;font-size:12px;" @if(!$showAmount) colspan="1" @endif>
+                            @if(is_array($booking['menu1']))
+                                @foreach($booking['menu1'] as $menuItem)
+                                    • {{ $menuItem }}<br>
+                                @endforeach
+                            @else
+                                • {{ $booking['menu1'] }}
+                            @endif
+                        </td>
+                        @if($showAmount)
+                        <td style="text-align:right;"></td>
+                        @endif
+                    </tr>
                 @endif
-            </p>
 
-            <div style="font-size:16px; line-height:1.6; margin-bottom: 8px;">
-                @if(is_array($booking['menu1']))
-                    @foreach($booking['menu1'] as $menuItem)
-                        • {{ $menuItem }}<br>
+                <!-- Add-on Items -->
+                @if(!empty($booking['menu']))
+                    <tr>
+                        <td colspan="{{ $showAmount ? 2 : 1 }}" style="font-weight:700;background:#e8e8e8;padding:10px 12px;">
+                            <i class="bi bi-plus-circle"></i> Add-on Items
+                        </td>
+                    </tr>
+                      <tr>
+                    @foreach($booking['menu'] as $item)
+                  
+                        <td style="padding-left:30px;">
+                            • {{ is_array($item) ? $item['name'] : $item }}
+                        </td>
+                        @if($showAmount)
+                        <td style="text-align:right;font-weight:600;">${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}</td>
+                        @endif
+                    </tr>
                     @endforeach
-                @else
-                    • {{ $booking['menu1'] }}
                 @endif
-            </div>
-        @endif
-    </div>
 
-    <!-- Add-ons -->
-    <div style="padding:15px;">
-        <h5 style="margin-bottom:10px; border-bottom:1px solid #000000; padding-bottom:5px;">
-            <i class="bi bi-plus-circle"></i> Add-ons
-        </h5>
-
-        @if(!empty($booking['menu']))
-            @foreach($booking['menu'] as $item)
-                <div style="margin-bottom:8px; font-size:16px;">
-                    • {{ is_array($item) ? $item['name'] : $item }}
-                    @if($showAmount)
-                        <span style="float:right;">
-                            ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
-                        </span>
-                    @endif
-                </div>
-            @endforeach
-        @else
-            <p style="font-size:13px;">No add-ons</p>
-        @endif
-    </div>
-
-    <!-- Kids Items -->
-    <div style="padding:15px;">
-        <h5 style="margin-bottom:8px; border-bottom:1px solid #000000; padding-bottom:5px;">
-            <i class="bi bi-emoji-smile"></i> Kids Items
-        </h5>
-
-        @if(!empty($booking['kids_items']))
-            <p style="font-weight:700; margin-bottom:8px;">
-                {{ $booking['kids_count'] ?? 0 }} Kids
-                @if($showAmount)
-                    ( ${{ isset($booking['kids_price']) ? number_format($booking['kids_price'], 2) : '0.00' }})
+                <!-- Kids Package Items -->
+                @if(!empty($booking['kids_items']))
+                    <tr>
+                        <td style="font-weight:700;"><i class="bi bi-emoji-smile"></i> Kids Package ({{ $booking['kids_count'] }} kids)</td>
+                        @if($showAmount)
+                        <td style="text-align:right;font-weight:700;">${{ isset($booking['kids_price']) ? number_format($booking['kids_price'], 2) : '0.00' }}</td>
+                        @endif
+                    </tr>
+                    <tr>
+                        <td style="padding-left:30px;font-size:12px;">
+                            @if(is_array($booking['kids_items']))
+                                @foreach($booking['kids_items'] as $kidsItem)
+                                    • {{ $kidsItem }}<br>
+                                @endforeach
+                            @else
+                                • {{ $booking['kids_items'] }}
+                            @endif
+                        </td>
+                        @if($showAmount)
+                        <td style="text-align:right;"></td>
+                        @endif
+                    </tr>
                 @endif
-            </p>
 
-            <div style="font-size:16px; line-height:1.6;">
-                @if(is_array($booking['kids_items']))
-                    @foreach($booking['kids_items'] as $kidsItem)
-                        • {{ $kidsItem }}<br>
-                    @endforeach
-                @else
-                    • {{ $booking['kids_items'] }}
-                @endif
-            </div>
-        @else
-            <p style="font-size:13px;">No kids items</p>
-        @endif
-    </div>
+            
 
-</div>
-             
 
             </tbody>
         </table>
