@@ -39,6 +39,7 @@
         .btn-print:hover { background:#333; }
         .btn-close { background:#e8e8e8; color:#000; }
         .btn-close:hover { background:#000000; }
+        li{margin-bottom:6px;}
         .amountprice{ font-size:12px; color:#000; border-bottom:1px solid #000000; padding-bottom:10px;}
         @media print {
   
@@ -47,7 +48,7 @@
     }
     
     body {
-        margin: 0;
+        margin: 10px;
         padding: 0;
     }
 
@@ -172,10 +173,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Main Package Items -->
-              <h4 style="margin-top:20px; margin-bottom:10px;">
-    <i class="bi bi-list-ul"></i> Order Items
-</h4>
+    
 
 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:10px;">
 
@@ -193,15 +191,15 @@
                 @endif
             </p>
 
-            <div style="font-size:16px; line-height:1.6; margin-bottom: 8px;">
-                @if(is_array($booking['menu1']))
-                    @foreach($booking['menu1'] as $menuItem)
-                        • {{ $menuItem }}<br>
-                    @endforeach
-                @else
-                    • {{ $booking['menu1'] }}
-                @endif
-            </div>
+         <ol style="font-size:16px; line-height:1.6; margin-bottom:8px; padding-left:18px;">
+    @if(is_array($booking['menu1']))
+        @foreach($booking['menu1'] as $menuItem)
+            <li>{{ $menuItem }}</li>
+        @endforeach
+    @else
+        <li>{{ $booking['menu1'] }}</li>
+    @endif
+</ol>
         @endif
     </div>
 
@@ -211,20 +209,23 @@
             <i class="bi bi-plus-circle"></i> Add-ons
         </h5>
 
-        @if(!empty($booking['menu']))
-            @foreach($booking['menu'] as $item)
-                <div style="margin-bottom:8px; font-size:16px;">
-                    • {{ is_array($item) ? $item['name'] : $item }}
-                    @if($showAmount)
-                        <span style="float:right;">
-                            ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
-                        </span>
-                    @endif
-                </div>
-            @endforeach
-        @else
-            <p style="font-size:13px;">No add-ons</p>
-        @endif
+      @if(!empty($booking['menu']))
+    <ol style="padding-left:18px; font-size:16px;">
+        @foreach($booking['menu'] as $item)
+            <li style="margin-bottom:6px;">
+                {{ is_array($item) ? $item['name'] : $item }}
+
+                @if($showAmount)
+                    <span style="float:right;">
+                        ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
+                    </span>
+                @endif
+            </li>
+        @endforeach
+    </ol>
+@else
+    <p style="font-size:13px;">No add-ons</p>
+@endif
     </div>
 
     <!-- Kids Items -->
@@ -241,15 +242,15 @@
                 @endif
             </p>
 
-            <div style="font-size:16px; line-height:1.6;">
-                @if(is_array($booking['kids_items']))
-                    @foreach($booking['kids_items'] as $kidsItem)
-                        • {{ $kidsItem }}<br>
-                    @endforeach
-                @else
-                    • {{ $booking['kids_items'] }}
-                @endif
-            </div>
+           <ol style="font-size:16px; line-height:1.6; padding-left:18px;">
+    @if(is_array($booking['kids_items']))
+        @foreach($booking['kids_items'] as $kidsItem)
+            <li>{{ $kidsItem }}</li>
+        @endforeach
+    @else
+        <li>{{ $booking['kids_items'] }}</li>
+    @endif
+</ol>
         @else
             <p style="font-size:13px;">No kids items</p>
         @endif
