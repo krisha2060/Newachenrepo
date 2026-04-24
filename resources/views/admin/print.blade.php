@@ -27,14 +27,14 @@
         .bill-section p { font-size:12px; color:#000; margin:5px 0; line-height:1.6; }
         .bill-section .label { color:#000; font-size:12px; font-weight:600; }
         .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
-        .items-table thead { background:#e8e8e8; border-bottom:2px solid #000; }
+        .items-table thead {  border-bottom:2px solid #000; }
         .items-table th { padding:8px; text-align:left; font-size:12px; font-weight:700; text-transform:uppercase; color:#000; letter-spacing:0.5px; }
-        .items-table td { padding:14px 12px; border-bottom:1px solid #000; font-size:13px; color:#000; }
+        .items-table td { padding:14px 12px; border-bottom:1px solid #000000; font-size:13px; color:#000; }
         .items-table tr:last-child td { border-bottom:none; }
         .invoice-footer { border-top:1px solid #000; padding-top:20px; text-align:center; color:#000; font-size:12px; }
-        .payment-notice { background:#e8e8e8; color:#000; padding:12px; border-radius:5px; font-size:12px; margin-bottom:15px; border-left:3px solid #000; }
+        .payment-notice { color:#000; padding:12px; border-radius:5px; font-size:12px; margin-bottom:15px; border-left:3px solid #000; }
         .print-controls { display:flex; gap:10px; justify-content:flex-end; margin-bottom:20px; padding:0 0 20px 0; }
-        .btn { padding:10px 20px; border-radius:5px; border:1px solid #000; cursor:pointer; font-size:13px; font-weight:600; font-family:'DM Sans',Arial,sans-serif; transition:all 0.2s; }
+        .btn { padding:10px 20px; border-radius:5px; border:1px solid #000000; cursor:pointer; font-size:13px; font-weight:600; font-family:'DM Sans',Arial,sans-serif; transition:all 0.2s; }
         .btn-print { background:#000; color:#fff; }
         .btn-print:hover { background:#333; }
         .btn-close { background:#e8e8e8; color:#000; }
@@ -48,7 +48,8 @@
     }
     
     body {
-        margin: 10px;
+        
+        margin-top: 40px;
         padding: 0;
     }
 
@@ -165,7 +166,7 @@
             <thead>
                 
                 <tr>
-                <h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i>Order Items</h4>
+                <h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i> Order Items</h4>
                     <!-- <th>Items</th> -->
                     @if($showAmount)
                     <!-- <th style="text-align:right;width:120px">Amount</th> -->
@@ -210,19 +211,25 @@
         </h5>
 
       @if(!empty($booking['menu']))
-    <ol style="padding-left:18px; font-size:16px;">
-        @foreach($booking['menu'] as $item)
-            <li style="margin-bottom:6px;">
-                {{ is_array($item) ? $item['name'] : $item }}
+ <ol style="padding-left:20px; font-size:16px;">
+    @foreach($booking['menu'] as $item)
+        <li style="padding-bottom:6px;">
+    <div style="display:flex; align-items:flex-start; {{ $showAmount ? 'justify-content:space-between;' : '' }}">
 
-                @if($showAmount)
-                    <span style="float:right;">
-                        ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
-                    </span>
-                @endif
-            </li>
-        @endforeach
-    </ol>
+        <span style="word-break:break-word; {{ $showAmount ? 'max-width:75%;' : 'width:100%;' }}">
+            {{ is_array($item) ? $item['name'] : $item }}
+        </span>
+
+        @if($showAmount)
+            <span style="font-size:14px; white-space:nowrap; margin-left:10px;">
+                ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
+            </span>
+        @endif
+
+    </div>
+</li>
+    @endforeach
+</ol>
 @else
     <p style="font-size:13px;">No add-ons</p>
 @endif
@@ -264,7 +271,7 @@
 
         <!-- Special Notes -->
         @if(!empty($booking['notes']))
-            <div style="background:#e8e8e8;padding:15px;border-radius:5px;margin-bottom:30px;border-left:3px solid #000;">
+            <div style=";padding:15px;border-radius:5px;margin-bottom:30px;border-left:3px solid #000;">
             
                 <p style="margin-top:8px;font-size:13px;line-height:1.6;">    <strong style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Special Notes: </strong>{{ $booking['notes'] }}</p>
             </div>
