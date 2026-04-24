@@ -164,7 +164,7 @@
             <thead>
                 
                 <tr>
-<h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i>Order Items</h4>
+                <h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i>Order Items</h4>
                     <!-- <th>Items</th> -->
                     @if($showAmount)
                     <!-- <th style="text-align:right;width:120px">Amount</th> -->
@@ -173,9 +173,9 @@
             </thead>
             <tbody>
                 <!-- Main Package Items -->
-              <h4 style="margin-top:20px; margin-bottom:10px;">
-    <i class="bi bi-list-ul"></i> Order Items
-</h4>
+              <!-- <h4 style="margin-top:20px; margin-bottom:10px;">
+                <i class="bi bi-list-ul"></i> Order Items
+            </h4> -->
 
 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:10px;">
 
@@ -216,7 +216,7 @@
                 <div style="margin-bottom:8px; font-size:16px;">
                     • {{ is_array($item) ? $item['name'] : $item }}
                     @if($showAmount)
-                        <span style="float:right;">
+                        <span style="float:right;font-size:14px;">
                             ${{ is_array($item) && isset($item['price']) ? number_format($item['price'], 2) : '0.00' }}
                         </span>
                     @endif
