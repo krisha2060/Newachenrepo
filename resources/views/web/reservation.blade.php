@@ -195,7 +195,7 @@
                         </div>
                         <div class="form-group">
                             <label>Preferred Time <span class="required">*</span></label>
-                            <input type="time" name="event_time" id="time" placeholder="Select Time" class="theme-time">
+                            <input type="time" name="event_time" id="time" placeholder="Select Time" class="theme-time" >
                         </div>
                     </div>
 

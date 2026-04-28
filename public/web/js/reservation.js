@@ -321,22 +321,28 @@ if (value < minGuests || isNaN(value)) {
     guestsInput.addEventListener('input', updateTotalPrice);
 
     // Flatpickr 
-   // flatpickr(".theme-date", { dateFormat: "Y-m-d", minDate: "today", disableMobile: true });
-     flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, disableMobile: true });
+    // flatpickr(".theme-date", { dateFormat: "Y-m-d", minDate: "today", disableMobile: true });
+    //  flatpickr("#time", { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, disableMobile: true });
+    flatpickr("#time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        disableMobile: true,
+        onChange: function(selectedDates, dateStr) {
+            document.getElementById('time').value = dateStr;
+            document.getElementById('time').style.border = '';
+        }
+    });
+    flatpickr(".theme-date", { 
+        dateFormat: "Y-m-d", 
+        minDate: minDateStr,  
+        disableMobile: true 
+    });
 
-flatpickr(".theme-date", { 
-    dateFormat: "Y-m-d", 
-    minDate: minDateStr,  
-    disableMobile: true 
-});
 
 
-
-    // ═══════════════════════════════════════════════════════════
     //  ORDER REVIEW MODAL
-    //  Built from form data client-side — no extra backend call.
-    //  "OK, Place Order" → single POST → success toast → reload.
-    // ═══════════════════════════════════════════════════════════
 
     document.body.insertAdjacentHTML('beforeend', `
         <div id="orderReviewModal" class="orv-overlay">
@@ -607,7 +613,15 @@ flatpickr(".theme-date", {
     
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
+const timeInput = document.getElementById('time');
+if (!timeInput.value || !timeInput.value.trim()) {
+    showToast('Please select a preferred time.', 'warning');
+    timeInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    timeInput.style.border = '1.5px solid red';
+    setTimeout(() => timeInput.style.border = '', 3000);
+    return;
+}
+timeInput.style.border = '';
         const guestsValue = parseInt(guestsInput.value);
     const minGuests = (selectedPackageInput.value == 4) ? 25 : 15;
 if (guestsValue < minGuests || isNaN(guestsValue)) {
@@ -1021,4 +1035,7 @@ function initMobileSwipers() {
     }
 
 })();
+
+
+
 });
