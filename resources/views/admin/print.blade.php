@@ -166,7 +166,7 @@
             <thead>
                 
                 <tr>
-<h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i> Order Items</h4>
+                <h4 style="margin-top:20px; margin-bottom: 3px;"><i class="bi bi-list-ul"></i> Order Items</h4>
                     <!-- <th>Items</th> -->
                     @if($showAmount)
                     <!-- <th style="text-align:right;width:120px">Amount</th> -->
