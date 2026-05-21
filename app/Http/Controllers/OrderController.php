@@ -191,4 +191,130 @@ class OrderController extends Controller
             'event_time'     => $orderDetails['event_time'],
         ]);
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'package_id'          => 'required|exists:packages,id',
+            'customer_name'       => 'required|string',
+            'customer_phone'      => 'required|string',
+            'email'               => 'nullable|email',
+            'delivery_address'    => 'nullable|string',
+            'event_date'          => 'nullable|date',
+            'event_time'          => 'nullable',
+            'guest_count'         => 'required|integer|min:1',
+            'notes'               => 'nullable|string',
+            'addons'              => 'nullable|string',
+            'package_group_items' => 'nullable|string',
+            'kids_package_id'     => 'nullable|exists:packages,id',
+            'kids_count'          => 'nullable|integer|min:10',
+            'kids_items'          => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        DB::transaction(function () use ($request, $order) {
+            $package      = Package::findOrFail($request->package_id);
+            $guestCount   = $request->guest_count;
+            $packageTotal = $package->price_per_pax * $guestCount;
+            $addonTotal   = 0;
+
+            $kidsPackageId    = $request->filled('kids_package_id') ? (int) $request->kids_package_id : null;
+            $kidsCount        = $request->filled('kids_count')      ? (int) $request->kids_count      : null;
+            $kidsPackageTotal = null;
+
+            if ($kidsPackageId && $kidsCount) {
+                $kidsPackage      = Package::findOrFail($kidsPackageId);
+                $kidsPackageTotal = $kidsPackage->price_per_pax * $kidsCount;
+            }
+
+            // Update main order fields
+            $order->update([
+                'package_id'         => $package->id,
+                'customer_name'      => $request->customer_name,
+                'customer_phone'     => '+61' . $request->customer_phone,
+                'email'              => $request->email,
+                'delivery_address'   => $request->delivery_address,
+                'event_date'         => $request->event_date,
+                'event_time'         => $request->event_time,
+                'guest_count'        => $guestCount,
+                'package_price'      => $package->price_per_pax,
+                'package_total'      => $packageTotal,
+                'notes'              => $request->notes,
+                'kids_package_id'    => $kidsPackageId,
+                'kids_count'         => $kidsCount,
+                'kids_package_total' => $kidsPackageTotal,
+            ]);
+
+            // Delete & recreate related records
+            OrderPackageSelection::where('order_id', $order->id)->delete();
+            OrderAddonItem::where('order_id', $order->id)->delete();
+            KidsOrderItem::where('order_id', $order->id)->delete();
+
+            // Recreate package group selections
+            if ($request->filled('package_group_items')) {
+                $groupSelections = json_decode($request->package_group_items, true);
+                if (is_array($groupSelections)) {
+                    foreach ($groupSelections as $groupId => $chosenItemName) {
+                        $item = DB::table('items')->where('item_name', $chosenItemName)->first();
+                        $packageItem = DB::table('package_items')
+                            ->where('package_id', $package->id)
+                            ->where('group_id', $groupId)
+                            ->when($item, fn($q) => $q->where('item_id', $item->id))
+                            ->first();
+                        OrderPackageSelection::create([
+                            'order_id'   => $order->id,
+                            'package_id' => $package->id,
+                            'group_id'   => $groupId,
+                            'item_id'    => $packageItem?->item_id ?? $item?->id,
+                        ]);
+                    }
+                }
+            }
+
+            // Recreate kids items
+            if ($kidsPackageId && $request->filled('kids_items')) {
+                $kidsItemNames = json_decode($request->kids_items, true);
+                if (is_array($kidsItemNames)) {
+                    foreach ($kidsItemNames as $itemName) {
+                        $item = DB::table('items')->where('item_name', $itemName)->first();
+                        if ($item) {
+                            KidsOrderItem::create(['order_id' => $order->id, 'item_id' => $item->id]);
+                        }
+                    }
+                }
+            }
+
+            // Recreate addons
+            if ($request->filled('addons')) {
+                $addons = json_decode($request->addons, true);
+                if (is_array($addons)) {
+                    foreach ($addons as $addon) {
+                        $total = $addon['price'] * $guestCount;
+                        OrderAddonItem::create([
+                            'order_id'      => $order->id,
+                            'item_name'     => $addon['name'],
+                            'price_per_pax' => $addon['price'],
+                            'guest_count'   => $guestCount,
+                            'total_price'   => $total,
+                        ]);
+                        $addonTotal += $total;
+                    }
+                }
+            }
+
+            // Update totals
+            $grandTotal = $packageTotal + $addonTotal + ($kidsPackageTotal ?? 0);
+            $order->update([
+                'addon_total'      => $addonTotal,
+                'grand_total'      => $grandTotal,
+                'remaining_amount' => $grandTotal,
+            ]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order updated successfully',
+        ]);
+    }
 }

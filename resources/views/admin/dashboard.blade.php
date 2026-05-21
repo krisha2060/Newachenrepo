@@ -389,8 +389,8 @@
        const bookings = @json($bookings);
     </script>
        <script>
-        const UPDATE_STATUS_URL = "{{ route('admin.update-status') }}";
-        
+        const UPDATE_STATUS_URL    = "{{ route('admin.update-status') }}";
+        const RESERVATION_EDIT_URL = "{{ route('reservation') }}";
     </script>
    
     <script src="{{ asset('web/js/dashboard.js') }}"></script>

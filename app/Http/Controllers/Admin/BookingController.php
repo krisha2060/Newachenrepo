@@ -68,6 +68,8 @@ class BookingController extends Controller
             
             return [
                 'id'                 => $bookingId,
+                'db_id'              => $order->id,
+                'package_id'         => $order->package_id,
                 'client'             => $order->customer_name,
                 'email'              => $order->email,
                 'initials'           => $initials,

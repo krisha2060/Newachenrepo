@@ -251,6 +251,7 @@ function renderTable(data){
       <td><span class="row-badge ${sc}">${b.status}</span></td>
       <td onclick="event.stopPropagation()"><div class="row-actions">
         <div class="row-action-btn rab-view" title="View" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'><i class="bi bi-eye"></i></div>
+        <div class="row-action-btn rab-edit" title="Edit Reservation" onclick="window.location=RESERVATION_EDIT_URL+'?edit=${b.db_id}'"><i class="bi bi-pencil-square"></i></div>
         <div class="row-action-btn rab-del" title="Delete" onclick='askDelete("${b.id}")'><i class="bi bi-trash3"></i></div>
       </div></td>
     </tr>`;

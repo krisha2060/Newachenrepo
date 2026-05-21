@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 
 class HomeController extends Controller
 {
@@ -163,7 +164,7 @@ class HomeController extends Controller
     return view('web.home', compact('catering'));
 }
 
-public function index1()
+public function index1(Request $request)
 {
     $allPackages = \DB::table('packages')
         ->where('is_active', 1)
@@ -244,10 +245,64 @@ public function index1()
 
     $catering = [
         'packages' => $cateringPackages,
-        'extras' => $cateringExtras,
-        'addons' => $addons
+        'extras'   => $cateringExtras,
+        'addons'   => $addons
     ];
 
-    return view('web.reservation', compact('catering'));
+    // ── EDIT MODE: load existing booking if ?edit=id is in URL ──────────────
+    $editBooking = null;
+    if ($request->filled('edit')) {
+        $editId = (int) $request->input('edit');
+        $editOrder = Order::with([
+            'package',
+            'addonItems',
+            'ItemsList.item',
+            'kidsPackage',
+            'kidsOrderItems.item',
+        ])->find($editId);
+
+        if ($editOrder) {
+            // Reconstruct selected menu items
+            $menu1 = [];
+            foreach ($editOrder->ItemsList as $sel) {
+                if ($sel->item) $menu1[] = $sel->item->item_name;
+            }
+            // Reconstruct addons with price
+            $addonItems = [];
+            foreach ($editOrder->addonItems as $addon) {
+                $addonItems[] = [
+                    'name'  => $addon->item_name,
+                    'price' => (float) $addon->price_per_pax,
+                ];
+            }
+            // Kids items
+            $kidsItems = [];
+            foreach ($editOrder->kidsOrderItems as $k) {
+                if ($k->item) $kidsItems[] = $k->item->item_name;
+            }
+
+            $editBooking = [
+                'db_id'           => $editOrder->id,
+                'booking_id'      => 'BK-' . str_pad($editOrder->id, 4, '0', STR_PAD_LEFT),
+                'customer_name'   => $editOrder->customer_name,
+                'customer_phone'  => $editOrder->customer_phone,
+                'email'           => $editOrder->email,
+                'guest_count'     => $editOrder->guest_count,
+                'event_date'      => $editOrder->event_date,
+                'event_time'      => $editOrder->event_time,
+                'notes'           => $editOrder->notes,
+                'delivery_address'=> $editOrder->delivery_address,
+                'delivery_type'   => ($editOrder->delivery_address === 'Self Pickup') ? 'pickup' : 'delivery',
+                'package_id'      => $editOrder->package_id,
+                'menu1'           => $menu1,
+                'addons'          => $addonItems,
+                'kids_package_id' => $editOrder->kids_package_id,
+                'kids_count'      => $editOrder->kids_count,
+                'kids_items'      => $kidsItems,
+            ];
+        }
+    }
+
+    return view('web.reservation', compact('catering', 'editBooking'));
 }
 }

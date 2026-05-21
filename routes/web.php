@@ -13,6 +13,7 @@ Route::prefix('admin')->group(function () {
     require base_path('routes/admin.php');
 });
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::post('/orders/{id}/update', [OrderController::class, 'update'])->name('orders.update');
 
 Route::get('/run-migration-payment-fields', function () {
     Artisan::call('migrate', [

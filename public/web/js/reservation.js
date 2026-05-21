@@ -551,10 +551,11 @@ if (value < minGuests || isNaN(value)) {
     const tot  = (lbl, val) =>
         `<div class="orv-row orv-total"><span class="orv-lbl">${lbl}</span><span class="orv-val">${val}</span></div>`;
 
+    const isEdit = !!(window.editBooking);
     return `
-        <div class="orv-badge">Review Order</div>
-        <h2 class="orv-title">Confirm Your Reservation</h2>
-        <p class="orv-subtitle">Please review your details before placing the order.</p>
+        <div class="orv-badge">${isEdit ? 'Review Changes' : 'Review Order'}</div>
+        <h2 class="orv-title">${isEdit ? 'Update Your Reservation' : 'Confirm Your Reservation'}</h2>
+        <p class="orv-subtitle">Please review your details before ${isEdit ? 'updating' : 'placing'} the order.</p>
         <div class="orv-table">
 
             ${head('Customer Details')}
@@ -638,38 +639,46 @@ if (guestsValue < minGuests || isNaN(guestsValue)) {
         openReview();
     });
 
-    // ─── "OK, Place Order" → POST to backend ──────────────────
+    // ─── "OK, Place Order" / "OK, Update Order" → POST to backend ──────────
     orvConfirmBtn.addEventListener('click', function () {
         orvConfirmBtn.classList.add('orv-loading');
         orvConfirmBtn.disabled = true;
 
-      fetch(form.action, {
-    method: 'POST',
-    body: new FormData(form),
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-})
-.then(r => r.json())
-.then(res => {
-    if (res.success) {
-        closeReview();
+        const actionUrl = window.editBooking
+            ? (window.ORDER_UPDATE_BASE_URL || '') + `/${window.editBooking.db_id}/update`
+            : form.action;
 
-        const oldModal = document.getElementById('orderConfirmationModal');
-        if (oldModal) oldModal.style.display = 'none';
+        fetch(actionUrl, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                closeReview();
+                const oldModal = document.getElementById('orderConfirmationModal');
+                if (oldModal) oldModal.style.display = 'none';
 
-        showToast('Reservation confirmed! We\'ll be in touch soon.', 'success', 3500);
-        setTimeout(() => location.reload(), 2800);
-    } else {
-        showToast(res.message || 'Failed to save data.', 'error');
-        orvConfirmBtn.classList.remove('orv-loading');
-        orvConfirmBtn.disabled = false;
-    }
-})
-.catch(err => {
-    console.error(err);
-    orvConfirmBtn.classList.remove('orv-loading');
-    orvConfirmBtn.disabled = false;
-    showToast('Something went wrong. Please try again.', 'error');
-});
+                if (window.editBooking) {
+                    showToast('Booking updated successfully!', 'success', 2500);
+                    setTimeout(() => { window.location.href = window.ADMIN_DASHBOARD_URL || '/admin/dashboard'; }, 2200);
+                } else {
+                    showToast('Reservation confirmed! We\'ll be in touch soon.', 'success', 3500);
+                    setTimeout(() => location.reload(), 2800);
+                }
+            } else {
+                showToast(res.message || 'Failed to save data.', 'error');
+                orvConfirmBtn.classList.remove('orv-loading');
+                orvConfirmBtn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            orvConfirmBtn.classList.remove('orv-loading');
+            orvConfirmBtn.disabled = false;
+            showToast('Something went wrong. Please try again.', 'error');
+        });
     });
     
 
@@ -1037,5 +1046,131 @@ function initMobileSwipers() {
 })();
 
 
+    // ── EDIT MODE INITIALISATION ─────────────────────────────────────────
+    function initEditMode(eb) {
+        if (!eb) return;
+
+        // 1. Basic form fields
+        document.getElementById('name').value            = eb.customer_name  || '';
+        document.getElementById('email').value           = eb.email          || '';
+        document.getElementById('phone').value           = (eb.customer_phone || '').replace(/^\+61/, '');
+        document.getElementById('guests').value          = eb.guest_count    || 15;
+        document.getElementById('special_requests').value= eb.notes          || '';
+
+        // 2. Date
+        const dateEl = document.getElementById('date');
+        if (eb.event_date) {
+            dateEl.value = eb.event_date;
+            if (dateEl._flatpickr) dateEl._flatpickr.setDate(eb.event_date);
+        }
+
+        // 3. Time
+        const timeEl = document.getElementById('time');
+        if (eb.event_time) {
+            timeEl.value = eb.event_time;
+            if (timeEl._flatpickr) timeEl._flatpickr.setDate(eb.event_time);
+        }
+
+        // 4. Delivery type
+        const delivType = eb.delivery_type || 'pickup';
+        document.getElementById('deliveryTypeInput').value = delivType;
+        if (delivType === 'delivery') {
+            const delivBtn = document.getElementById('btn-delivery');
+            if (delivBtn) delivBtn.click();
+            setTimeout(() => {
+                const addrEl = document.getElementById('event_address');
+                if (addrEl) addrEl.value = eb.delivery_address || '';
+            }, 80);
+        }
+
+        // 5. Edit booking ID hidden input
+        document.getElementById('editBookingIdInput').value = eb.db_id;
+
+        // 6. Pre-select package (reconstruct group selections from saved item names)
+        const pkgId  = eb.package_id;
+        const pkgBtn = document.querySelector(`.select-btn[data-id="${pkgId}"]`);
+        if (pkgBtn && pkgId) {
+            const allData = window.allPackagesData || [];
+            const pkg     = allData.find(p => String(p.id) === String(pkgId));
+            if (pkg) {
+                const selections   = {};
+                const selectedNames = [];
+                pkg.items.forEach(item => {
+                    const options = item.label.split(' or ').map(s => s.trim()).filter(Boolean);
+                    const chosen  = options.find(opt => (eb.menu1 || []).includes(opt));
+                    if (chosen) {
+                        selections[item.group_id] = chosen;
+                        selectedNames.push(chosen);
+                    } else if (options.length === 1) {
+                        selections[item.group_id] = options[0];
+                        selectedNames.push(options[0]);
+                    }
+                });
+                document.getElementById('groupSelectionInput').value      = JSON.stringify(selections);
+                document.getElementById('selectedPackageNameInput').value = pkgBtn.dataset.package;
+                document.getElementById('selectedPackageInput').value     = pkgId;
+                document.getElementById('packagePriceInput').value        = pkgBtn.dataset.price;
+                document.getElementById('selectedPackageIdInput').value   = pkgId;
+
+                // Highlight selected package button
+                packageButtons.forEach(btn => { btn.style.background = 'transparent'; btn.style.color = 'var(--accent-gold)'; });
+                pkgBtn.style.background = 'var(--accent-gold)';
+                pkgBtn.style.color      = 'var(--dark-bg)';
+            }
+        }
+
+        // 7. Pre-select addons
+        if (eb.addons && eb.addons.length) {
+            eb.addons.forEach(ebAddon => {
+                const addonEl = Array.from(addons).find(el => el.dataset.name === ebAddon.name);
+                if (addonEl && !addonEl.classList.contains('selected')) {
+                    addonEl.classList.add('selected');
+                    selectedAddons.push({ name: ebAddon.name, price: ebAddon.price });
+                }
+            });
+        }
+
+        // 8. Pre-select kids package
+        if (eb.kids_package_id && eb.kids_count) {
+            document.getElementById('kidsPackageIdInput').value  = eb.kids_package_id;
+            document.getElementById('kidsCountInput').value      = eb.kids_count;
+            if (eb.kids_items && eb.kids_items.length) {
+                document.getElementById('kidsItemsInput').value  = JSON.stringify(eb.kids_items);
+                const kidsTotal = (window.kidsPackagePrice || 0) * eb.kids_count;
+                document.getElementById('kidsPackageTotalInput').value = kidsTotal.toFixed(2);
+
+                const bannerWrap      = document.getElementById('kidsBannerWrap');
+                const selectedBadge   = document.getElementById('kidsSelectedBadge');
+                const selectedBadgeTxt= document.getElementById('kidsSelectedBadgeText');
+                const kidsBanner      = document.getElementById('kidsBanner');
+                if (bannerWrap)       bannerWrap.style.display      = 'block';
+                if (selectedBadge)    selectedBadge.style.display   = 'flex';
+                if (kidsBanner)       kidsBanner.style.display      = 'none';
+                if (selectedBadgeTxt) selectedBadgeTxt.innerHTML    =
+                    `<strong>Kids Package</strong> — ${eb.kids_count} kids · ${eb.kids_items.join(', ')}`;
+            }
+        }
+
+        // 9. Refresh price display
+        updateTotalPrice();
+
+        // 10. Update page labels for edit mode
+        const formIntroH2 = document.querySelector('.form-intro h2');
+        if (formIntroH2) formIntroH2.textContent = 'Edit Your Reservation';
+        const formSubtitle = document.querySelector('.form-intro .subtitle');
+        if (formSubtitle) formSubtitle.textContent = `Editing: ${eb.booking_id}`;
+        const submitSpan = document.querySelector('.submit-btn span');
+        if (submitSpan) submitSpan.textContent = 'Update Reservation';
+
+        // Scroll to package section so admin can verify / change
+        setTimeout(() => {
+            document.getElementById('cateringSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+    }
+
+    // Run edit-mode initialisation after all listeners are attached
+    if (window.editBooking) {
+        initEditMode(window.editBooking);
+    }
 
 });

@@ -133,6 +133,8 @@
 <input type="hidden" name="kids_count" id="kidsCountInput" value="">
 <input type="hidden" name="kids_items" id="kidsItemsInput" value="">
 
+                    <input type="hidden" name="edit_booking_id" id="editBookingIdInput" value="">
+
 <div id="kidsBannerWrap" style="display:none; margin-top:2px;">
     <div class="kids-addon-banner" id="kidsBanner">
         <div class="kids-addon-icon">🧒</div>
@@ -421,7 +423,6 @@
     );
 @endphp
 <script>
- 
     window.allPackagesData = @json($allPackagesData);
     const cateringPackages = @json($catering['packages']);
 
@@ -431,8 +432,8 @@
     window.kidsPackageName = kidsPackageData?.title || 'Kids Package';
     window.kidsPackagePrice = kidsPackageData?.price || 0;
     window.kidsPackageItems = kidsPackageData?.items || [];
-       console.log('kids items:', JSON.stringify(window.kidsPackageItems));
-    
+    console.log('kids items:', JSON.stringify(window.kidsPackageItems));
+
     // Update banner subtitle with actual price from database
     if (window.kidsPackagePrice) {
         const bannerSub = document.getElementById('kidsBannerSub');
@@ -440,6 +441,10 @@
             bannerSub.innerHTML = `$${window.kidsPackagePrice} per kid · Min 10 kids · Choose any 2 items · Runs alongside your main booking`;
         }
     }
+
+    window.editBooking           = @json($editBooking ?? null);
+    window.ORDER_UPDATE_BASE_URL = "{{ url('/orders') }}";
+    window.ADMIN_DASHBOARD_URL   = "{{ route('admin.dashboard') }}";
 </script>
 <script src="{{ asset('web/js/reservation.js') }}"></script>
 <style>
