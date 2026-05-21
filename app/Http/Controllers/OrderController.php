@@ -139,13 +139,17 @@ class OrderController extends Controller
 
                 if (is_array($addons)) {
                     foreach ($addons as $addon) {
-                        $total = $addon['price'] * $guestCount;
+                        $quantity = isset($addon['qty']) && is_numeric($addon['qty']) ? max(1, (int) $addon['qty']) : 1;
+                        $total = isset($addon['qty']) && is_numeric($addon['qty'])
+                            ? $addon['price'] * $quantity
+                            : $addon['price'] * $guestCount;
 
                         $addonItem = OrderAddonItem::create([
                             'order_id'      => $order->id,
                             'item_name'     => $addon['name'],
                             'price_per_pax' => $addon['price'],
                             'guest_count'   => $guestCount,
+                            'quantity'      => $quantity,
                             'total_price'   => $total,
                         ]);
 
@@ -290,12 +294,16 @@ class OrderController extends Controller
                 $addons = json_decode($request->addons, true);
                 if (is_array($addons)) {
                     foreach ($addons as $addon) {
-                        $total = $addon['price'] * $guestCount;
+                        $quantity = isset($addon['qty']) && is_numeric($addon['qty']) ? max(1, (int) $addon['qty']) : 1;
+                        $total = isset($addon['qty']) && is_numeric($addon['qty'])
+                            ? $addon['price'] * $quantity
+                            : $addon['price'] * $guestCount;
                         OrderAddonItem::create([
                             'order_id'      => $order->id,
                             'item_name'     => $addon['name'],
                             'price_per_pax' => $addon['price'],
                             'guest_count'   => $guestCount,
+                            'quantity'      => $quantity,
                             'total_price'   => $total,
                         ]);
                         $addonTotal += $total;

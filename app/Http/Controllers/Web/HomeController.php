@@ -8,7 +8,7 @@ use App\Models\Order;
 
 class HomeController extends Controller
 {
-    //
+    
    public function index()
 {
     $catering = [
@@ -179,7 +179,7 @@ public function index1(Request $request)
         ->join('items', 'package_items.item_id', '=', 'items.id')
         ->orderBy('package_items.package_id')
         ->orderBy('package_items.group_id')
-        ->orderBy('package_items.id') // preserves insertion order
+        ->orderBy('package_items.id') 
         ->get([
             'package_items.package_id',
             'package_items.group_id',
@@ -239,7 +239,7 @@ public function index1(Request $request)
         ['name' => 'Goat Fokso', 'price' => 12],
         ['name' => 'Palak Paneer', 'price' => 8],
         ['name' => 'Selroti (min 25pcs)', 'price' => 2],
-        ['name' => 'Gajar ko Halwa ', 'price' => 4],
+        ['name' => 'Gajar ko Halwa', 'price' => 4],
         
     ];
 
@@ -272,7 +272,7 @@ public function index1(Request $request)
             foreach ($editOrder->addonItems as $addon) {
                 $addonItems[] = [
                     'name'  => $addon->item_name,
-                    'price' => (float) $addon->price_per_pax,
+                    'price' => (float) $addon->price_per_pax,                    'qty'   => (isset($addon->quantity) && $addon->quantity > 1) ? (int) $addon->quantity : null,
                 ];
             }
             // Kids items

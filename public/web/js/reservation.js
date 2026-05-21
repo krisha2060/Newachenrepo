@@ -17,6 +17,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let selectedAddons = [];
 
+    const getSelectedAddon = name => selectedAddons.find(addon => addon.name === name);
+    const updateSelectedAddonQty = (name, qty) => {
+        const addon = getSelectedAddon(name);
+        if (addon) {
+            addon.qty = Math.max(1, qty);
+        }
+    };
+    const getAddonQtyFromElement = addonEl => {
+        const qtyInput = addonEl.querySelector('.addon-qty-input');
+        const minQty = parseInt(addonEl.dataset.minQty || '1', 10) || 1;
+        const qty = qtyInput ? parseInt(qtyInput.value, 10) : minQty;
+        return Math.max(minQty, Number.isFinite(qty) ? qty : minQty);
+    };
+    const setAddonQtyInput = (addonEl, qty) => {
+        const qtyInput = addonEl.querySelector('.addon-qty-input');
+        if (qtyInput) {
+            qtyInput.value = qty;
+        }
+    };
+
     // Set today's date as minimum
     // const today = new Date().toISOString().split('T')[0];
     // dateInput.min = today;
@@ -222,6 +242,54 @@ dateInput.value = minDateStr;
 
     // ─── Add-on Selection ─────────────────────────────────────
     addons.forEach(addon => {
+        const isQtyAddon = addon.dataset.quantityAddon === 'true';
+        const minQty = parseInt(addon.dataset.minQty || '1', 10) || 1;
+        const qtyButtons = addon.querySelectorAll('.addon-qty-btn');
+        const qtyInput = addon.querySelector('.addon-qty-input');
+
+        const getQty = () => getAddonQtyFromElement(addon);
+        const setQty = qty => {
+            qty = Math.max(minQty, qty);
+            setAddonQtyInput(addon, qty);
+            if (addon.classList.contains('selected')) {
+                updateSelectedAddonQty(addon.dataset.name, qty);
+                updateTotalPrice();
+            }
+        };
+
+        if (qtyInput) {
+            qtyInput.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+            qtyInput.addEventListener('input', function () {
+                const raw = parseInt(this.value, 10);
+                if (!Number.isFinite(raw) || raw < minQty) {
+                    return;
+                }
+                if (addon.classList.contains('selected')) {
+                    updateSelectedAddonQty(addon.dataset.name, raw);
+                    updateTotalPrice();
+                }
+            });
+            qtyInput.addEventListener('blur', function () {
+                const raw = parseInt(this.value, 10);
+                setQty(Number.isFinite(raw) ? raw : minQty);
+            });
+        }
+
+        qtyButtons.forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const action = this.dataset.action;
+                const currentQty = getQty();
+                if (action === 'increase') {
+                    setQty(currentQty + 1);
+                } else {
+                    setQty(currentQty - 1);
+                }
+            });
+        });
+
         addon.addEventListener('click', function () {
             if (!selectedPackageInput.value) { showToast("Please select a package first!", "warning"); return; }
             const addonName  = this.dataset.name;
@@ -234,7 +302,11 @@ dateInput.value = minDateStr;
                 selectedAddons = selectedAddons.filter(a => a.name !== addonName);
             } else {
                 this.classList.add('selected');
-                selectedAddons.push({ name: addonName, price: addonPrice });
+                const addonData = { name: addonName, price: addonPrice };
+                if (isQtyAddon) {
+                    addonData.qty = getQty();
+                }
+                selectedAddons.push(addonData);
             }
             updateTotalPrice();
         });
@@ -271,9 +343,10 @@ dateInput.value = minDateStr;
     let guests        = parseInt(guestsInput.value) || 15;
     if (guests < 15) guests = 15;
 
-    const addonsTotal    = selectedAddons.reduce((sum, a) => sum + a.price, 0);
-    const totalPerPerson = basePrice + addonsTotal;
-    const total          = totalPerPerson * guests;
+    const addonsTotal = selectedAddons.reduce((sum, a) => {
+        return sum + (a.qty != null ? a.price * a.qty : a.price * guests);
+    }, 0);
+    const total = (basePrice * guests) + addonsTotal;
 
     const packageId = selectedPackageInput.value;
     const pkgName   = packageId
@@ -290,7 +363,7 @@ dateInput.value = minDateStr;
         selectedInfo.innerHTML = `
             <span class="info-label">
                 <strong>Selected:</strong> ${pkgName} — $${basePrice.toFixed(2)} per person
-                ${selectedAddons.length ? '<br><small style="color:var(--accent-gold);opacity:.8;">Add-ons: ' + selectedAddons.map(a => a.name).join(', ') + '</small>' : ''}
+                ${selectedAddons.length ? '<br><small style="color:var(--accent-gold);opacity:.8;">Add-ons: ' + selectedAddons.map(a => a.qty != null ? (a.name + ' (' + a.qty + ')') : a.name).join(', ') + '</small>' : ''}
                 <br><strong>Guests:</strong> ${guests}
                 <br><strong>Total:</strong> $${total.toFixed(2)}
                 ${kidsTotal ? `
@@ -517,7 +590,7 @@ if (value < minGuests || isNaN(value)) {
     const packagePrice = parseFloat(get('packagePriceInput')) || 0;
     const guests       = parseInt(get('guests')) || 0;
     const packageTotal = packagePrice * guests;
-    const addonsTotal  = selectedAddons.reduce((s, a) => s + a.price * guests, 0);
+    const addonsTotal = selectedAddons.reduce((s, a) => s + (a.qty != null ? a.price * a.qty : a.price * guests), 0);
 
     // ── kids ──────────────────────────────────────────────
     const kidsPackageId    = get('kidsPackageIdInput');
@@ -575,9 +648,11 @@ if (value < minGuests || isNaN(value)) {
             ${menuItems ? row('Your menu', menuItems) : ''}
 
             ${selectedAddons.length ? head('Add-ons') : ''}
-            ${selectedAddons.map(a =>
-                row(a.name, `$${(a.price * guests).toFixed(2)} <small style="opacity:.5">(${guests} × $${a.price})</small>`)
-            ).join('')}
+            ${selectedAddons.map(a => {
+                const qty = a.qty != null ? a.qty : guests;
+                const label = a.qty != null ? `${a.name} (${qty})` : a.name;
+                return row(label, `$${(a.price * qty).toFixed(2)} <small style="opacity:.5">(${qty} × $${a.price})</small>`);
+            }).join('')}
 
             ${kidsPackageId ? `
             ${head('Kids Package')}
@@ -1125,7 +1200,13 @@ function initMobileSwipers() {
                 const addonEl = Array.from(addons).find(el => el.dataset.name === ebAddon.name);
                 if (addonEl && !addonEl.classList.contains('selected')) {
                     addonEl.classList.add('selected');
-                    selectedAddons.push({ name: ebAddon.name, price: ebAddon.price });
+                    const addonData = { name: ebAddon.name, price: ebAddon.price };
+                    if (ebAddon.qty != null) {
+                        addonData.qty = ebAddon.qty;
+                        const qtyInput = addonEl.querySelector('.addon-qty-input');
+                        if (qtyInput) qtyInput.value = ebAddon.qty;
+                    }
+                    selectedAddons.push(addonData);
                 }
             });
         }

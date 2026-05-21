@@ -13,6 +13,7 @@ class OrderAddonItem extends Model
         'item_name',
         'price_per_pax',
         'guest_count',
+        'quantity',
         'total_price'
     ];
 

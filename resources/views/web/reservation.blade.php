@@ -96,13 +96,30 @@
 
             {{-- Add-ons --}}
             <h3 class="occasions-title">Extra Add-ons</h3>
-            <div class="mn-addons__grid">
-                @foreach($catering['addons'] as $addon)
-                    <div class="mn-addon" data-price="{{ $addon['price'] }}" data-name="{{ $addon['name'] }}">
-                        {{ $addon['name'] }} <b>${{ $addon['price'] }} pp</b>
+          <div class="mn-addons__grid">
+    @foreach($catering['addons'] as $addon)
+        @php $isQtyAddon = str_contains($addon['name'], 'Selroti'); @endphp
+        <div class="mn-addon" data-price="{{ $addon['price'] }}" data-name="{{ $addon['name'] }}" data-quantity-addon="{{ $isQtyAddon ? 'true' : 'false' }}" data-min-qty="{{ $isQtyAddon ? 25 : 1 }}">
+            
+            <div class="mn-addon-label">{{ $addon['name'] }}</div>
+
+            <div class="mn-addon-bottom">
+                @if($isQtyAddon)
+                    <div class="addon-qty-controls">
+                        <input type="number" class="addon-qty-input" value="25" min="25" step="1" aria-label="Selroti quantity">
+                        <div class="addon-qty-divider"></div>
+                        <button type="button" class="addon-qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
                     </div>
-                @endforeach
+                @endif
+
+                <div class="mn-addon-price">
+                    <b>${{ $addon['price'] }} {{ $isQtyAddon ? 'pp' : 'pp' }}</b>
+                </div>
             </div>
+
+        </div>
+    @endforeach
+</div>
 
             <!-- Reservation Form -->
             <div class="form-section" >
@@ -523,6 +540,61 @@
         box-sizing: border-box !important;
     }
 
+    /* .addon-qty-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        margin-top: 12px;
+    } */
+/* 
+    .addon-qty-input {
+        width: 58px;
+        padding: 0;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, .45);
+        background: #f8fafc;
+        color: #111827;
+        font-weight: 700;
+        text-align: center;
+    } */
+/* 
+    .addon-qty-btn {
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(148, 163, 184, .45);
+        border-radius: 12px;
+        background: #fff;
+        color: #111827;
+        font-size: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background .15s ease, border-color .15s ease;
+    } */
+
+    /* .addon-qty-btn:hover {
+        background: #f8fafc;
+        border-color: rgba(148, 163, 184, .75);
+    } */
+
+
+
+        .form-grid {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+.form-group {
+    min-width: 0 !important;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
     /* Info section cards */
     .info-grid {
         grid-template-columns: 1fr !important;
@@ -747,6 +819,70 @@
     .kids-modal-foot { padding: 12px 18px 22px; flex-direction: column; }
     .kids-addon-banner { flex-wrap: wrap; gap: 12px; }
     .kids-addon-cta { width: 100%; text-align: center; }
+}
+.mn-addon {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mn-addon-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px; 
+}
+
+.addon-qty-controls {
+    display: flex;
+    align-items: center;
+    border: 0.5px solid #aaa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.addon-qty-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.addon-qty-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.addon-qty-divider {
+    width: 1px;
+    height: 20px;
+    background: #272727;
+    flex-shrink: 0;
+}
+
+.addon-qty-input {
+    width: 40px;
+    height: 36px;
+    border: none;
+    background: white;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.addon-qty-input::-webkit-outer-spin-button,
+.addon-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.mn-addon-price {
+    white-space: nowrap;
 }
 </style>
 

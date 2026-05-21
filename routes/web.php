@@ -87,3 +87,13 @@ Route::get('/run-migration-add_delivery_charge_to_orders_table', function () {
 
 
 
+Route::get('/run-migration-add_quantity_to_order_addon_items_table', function () {
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/2026_05_21_101500_add_quantity_to_order_addon_items_table.php',
+        '--force' => true
+    ]);
+ 
+    return 'Migration executed!';
+});
+
+

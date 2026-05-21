@@ -47,7 +47,11 @@ class BookingController extends Controller
             $menu = [];
             if ($order->addonItems && $order->addonItems->count() > 0) {
                 foreach ($order->addonItems as $addon) {
-                    $menu[] = $addon->item_name;
+                    $label = $addon->item_name;
+                    if (isset($addon->quantity) && $addon->quantity > 1) {
+                        $label .= ' × ' . $addon->quantity;
+                    }
+                    $menu[] = $label;
                 }
             }
 
@@ -197,14 +201,24 @@ public function printSingle($id)
         if (!empty($part)) $initials .= strtoupper(substr($part, 0, 1));
     }
     $initials = substr($initials, 0, 2);
-    
     $menu = [];
+
+if ($order->addonItems && $order->addonItems->count() > 0) {
     foreach ($order->addonItems as $addon) {
+
+        $name = $addon->item_name;
+
+        if (!empty($addon->quantity) && $addon->quantity > 1) {
+            $name .= ' × ' . $addon->quantity;
+        }
+
         $menu[] = [
-            'name' => $addon->item_name,
+            'name'  => $name,
             'price' => $addon->total_price ?? 0
         ];
     }
+}
+
     
     $menu1 = [];
     foreach ($order->ItemsList as $sel) {
@@ -285,10 +299,24 @@ public function printSingle($id)
             $bookingId   = 'BK-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
             $packageName = $order->package ? $order->package->package_name : 'Custom Package';
             
+            // $menu = [];
+            // foreach ($order->addonItems as $addon) {
+            //     $menu[] = $addon->item_name;
+            // }
+
+
             $menu = [];
-            foreach ($order->addonItems as $addon) {
-                $menu[] = $addon->item_name;
+            if ($order->addonItems && $order->addonItems->count() > 0) {
+                foreach ($order->addonItems as $addon) {
+                    $label = $addon->item_name;
+                    if (isset($addon->quantity) && $addon->quantity > 1) {
+                        $label .= ' × ' . $addon->quantity;
+                    }
+                    $menu[] = $label;
+                }
             }
+
+
             
             $menu1 = [];
             foreach ($order->ItemsList as $sel) {
@@ -317,8 +345,8 @@ public function printSingle($id)
                 'kids_count' => $order->kids_count,
             ];
         });
-        
-        // Stats are computed from the filtered set (blade will also recompute if ids param passed)
+         
+    
         $total     = $bookings->count();
         $confirmed = $bookings->where('status', 'Confirmed')->count();
         $paid      = $bookings->where('status', 'Payment Done')->count();
@@ -484,6 +512,4 @@ public function datewise()
  
     return view('admin.datewisebookings', compact('bookings'));
 }
-
-
 }
