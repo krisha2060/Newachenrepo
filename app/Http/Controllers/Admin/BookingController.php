@@ -19,7 +19,11 @@ class BookingController extends Controller
             'ItemsList.item',
             'kidsPackage',           
             'kidsOrderItems.item',  
-        ])->get();
+        ])
+            ->orderByRaw("CASE WHEN order_status = 'Pending' THEN 0 WHEN order_status = 'Info Sent' THEN 1 ELSE 2 END")
+            ->orderBy('event_date')
+            ->orderBy('id')
+            ->get();
         
         $bookings = $orders->map(function($order) {
             
@@ -185,6 +189,7 @@ public function printSingle($id)
         'kidsOrderItems.item',
     ])->findOrFail($numericId);
     
+    
     // Build the booking array similar to datewise method
     $nameParts = explode(' ', $order->customer_name);
     $initials = '';
@@ -270,7 +275,11 @@ public function printSingle($id)
             }
         }
  
-        $orders = $query->get();
+        $orders = $query
+            ->orderByRaw("CASE WHEN order_status = 'Pending' THEN 0 WHEN order_status = 'Info Sent' THEN 1 ELSE 2 END")
+            ->orderBy('event_date')
+            ->orderBy('id')
+            ->get();
         
         $bookings = $orders->map(function($order) {
             $bookingId   = 'BK-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
@@ -345,7 +354,11 @@ public function printSingle($id)
             }
         }
  
-        $orders = $query->get();
+        $orders = $query
+            ->orderByRaw("CASE WHEN order_status = 'Pending' THEN 0 WHEN order_status = 'Info Sent' THEN 1 ELSE 2 END")
+            ->orderBy('event_date')
+            ->orderBy('id')
+            ->get();
         
         $bookings = $orders->map(function($order) {
             $bookingId   = 'BK-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
@@ -404,7 +417,11 @@ public function datewise()
         'ItemsList.item',
         'kidsPackage',
         'kidsOrderItems.item',
-    ])->get();
+    ])
+        ->orderByRaw("CASE WHEN order_status = 'Pending' THEN 0 WHEN order_status = 'Info Sent' THEN 1 ELSE 2 END")
+        ->orderBy('event_date')
+        ->orderBy('id')
+        ->get();
  
     $bookings = $orders->map(function ($order) {
  

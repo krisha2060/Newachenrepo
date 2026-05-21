@@ -78,10 +78,9 @@
         <div class="container">
             <div class="footer-content">
                 <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    
+                    <a href="https://www.facebook.com/newacatering/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.tiktok.com/@newa.chen.catering" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.instagram.com/newa.chen.catering/" target="_blank"><i class="fab fa-instagram"></i></a>
                 </div>
                 <div class="footer-menu">
                     <a href="#about">About</a>
