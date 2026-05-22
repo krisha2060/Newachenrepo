@@ -106,6 +106,8 @@
             <div class="mn-addon-bottom">
                 @if($isQtyAddon)
                     <div class="addon-qty-controls">
+                        <button type="button" class="addon-qty-btn" data-action="decrease" aria-label="Decrease quantity">-</button>
+                         <div class="addon-qty-divider1"></div>
                         <input type="number" class="addon-qty-input" value="25" min="25" step="1" aria-label="Selroti quantity">
                         <div class="addon-qty-divider"></div>
                         <button type="button" class="addon-qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
@@ -253,22 +255,6 @@
             <i class="fas fa-clock"></i>
             Delivery charges may vary based on your location. Our team will confirm the final fee after booking.
         </div>
-    </div>
-</div>
-
-<div id="kidsBannerWrap" style="display:none; margin-top:32px;">
-    <div class="kids-addon-banner" id="kidsBanner">
-        <div class="kids-addon-icon">🧒</div>
-        <div class="kids-addon-text">
-            <div class="kids-addon-title">Add a Kids Package?</div>
-            <div class="kids-addon-sub" id="kidsBannerSub">Min 10 kids · Choose any 2 items · Runs alongside your main booking</div>
-        </div>
-        <button type="button" class="kids-addon-cta" id="kidsAddonCta">Add +</button>
-    </div>
-    <div class="kids-selected-badge" id="kidsSelectedBadge" style="display:none;">
-        <span class="kids-badge-dot"></span>
-        <span id="kidsSelectedBadgeText">Kids package added</span>
-        <span class="kids-badge-edit" id="kidsEditLink">Edit</span>
     </div>
 </div>
 
@@ -830,7 +816,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px; 
+    gap: 10px; 
 }
 
 .addon-qty-controls {
@@ -842,7 +828,7 @@
 }
 
 .addon-qty-btn {
-    width: 36px;
+    width: 30px;
     height: 36px;
     border: none;
     background: white;
@@ -853,6 +839,13 @@
 .addon-qty-btn:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+.addon-qty-divider1 {
+    width: 1px;
+    height: 20px;
+    background: #272727;
+    flex-shrink: 0;
 }
 
 .addon-qty-divider {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\Package;
 use App\Models\OrderAddonItem;
@@ -198,6 +199,10 @@ class OrderController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'package_id'          => 'required|exists:packages,id',
             'customer_name'       => 'required|string',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 
@@ -252,6 +253,10 @@ public function index1(Request $request)
     // ── EDIT MODE: load existing booking if ?edit=id is in URL ──────────────
     $editBooking = null;
     if ($request->filled('edit')) {
+        if (!Auth::check()) {
+            return redirect()->route('reservation');
+        }
+
         $editId = (int) $request->input('edit');
         $editOrder = Order::with([
             'package',
@@ -272,7 +277,8 @@ public function index1(Request $request)
             foreach ($editOrder->addonItems as $addon) {
                 $addonItems[] = [
                     'name'  => $addon->item_name,
-                    'price' => (float) $addon->price_per_pax,                    'qty'   => (isset($addon->quantity) && $addon->quantity > 1) ? (int) $addon->quantity : null,
+                    'price' => (float) $addon->price_per_pax,      
+                    'qty'   => (isset($addon->quantity) && $addon->quantity > 1) ? (int) $addon->quantity : null,
                 ];
             }
             // Kids items

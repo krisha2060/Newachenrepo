@@ -227,6 +227,9 @@
             <span class="text-muted">|</span>
             <span id="mStatusBadge" class="row-badge"></span>
           </div>
+          <div id="btnEditBooking" style="display:none;cursor:pointer; " text-right>
+            <i class="bi bi-pencil-square" style="font-size:18px;color:#007bff"></i>
+          </div>
         </div>
         <div class="ct-modal-body">
           <div class="detail-grid-2">

@@ -81,8 +81,6 @@ dateInput.value = minDateStr;
 
     // ─── Group Item Selection Modal ───────────────────────────
     function openGroupSelectionModal(packageId, packageName, packagePrice, onConfirm) {
-        //editedhere
-        const preSelected = window.editBookingSelections || {};
         const allData = window.allPackagesData || [];
         const pkg = allData.find(p => String(p.id) === String(packageId));
 
@@ -122,7 +120,7 @@ dateInput.value = minDateStr;
                     <div class="gsm-options">
                         ${group.options.map((opt, j) => `
                             <label class="gsm-option" data-group="${group.group_id}" data-value="${opt}">
-                                <input type="radio" name="gsm_group_${group.group_id}" value="${opt}" ${preSelected[group.group_id] === opt ? 'checked' : (j === 0 ? 'checked' : '')}>
+                                <input type="radio" name="gsm_group_${group.group_id}" value="${opt}" ${j === 0 ? 'checked' : ''}>
                                 <span class="gsm-option-inner">
                                     <span class="gsm-radio-dot"></span>
                                     <span class="gsm-option-name">${opt}</span>
@@ -218,22 +216,13 @@ dateInput.value = minDateStr;
                     </span>
                 `;
 
-                // selectedAddons = [];
-                // addons.forEach(addon => {
-                //     addon.classList.remove('selected');
-                //     const tag = addon.querySelector('.addon-tag');
-                //     if (tag) tag.remove();
-                // });
-                
-                //editedhere
-if (!window.editBooking) {
-    selectedAddons = [];
-    addons.forEach(addon => {
-        addon.classList.remove('selected');
-        const tag = addon.querySelector('.addon-tag');
-        if (tag) tag.remove();
-    });
-}
+                selectedAddons = [];
+                addons.forEach(addon => {
+                    addon.classList.remove('selected');
+                    const tag = addon.querySelector('.addon-tag');
+                    if (tag) tag.remove();
+                });
+
                // guestsInput.value = 15;
                 guestsInput.min = (packageId == 4) ? 25 : 15;
                 guestsInput.value = (packageId == 4) ? 25 : 15;
@@ -823,7 +812,6 @@ function initMobileSwipers() {
     const KIDS_PRICE = window.kidsPackagePrice;
     const KIDS_ITEMS = window.kidsPackageItems;
     const KIDS_NAME  = window.kidsPackageName;
-    const initialKidsItems = window.editBooking?.kids_items || [];
 
     if (!KIDS_ID || !KIDS_PRICE || !KIDS_ITEMS.length) {
         console.log('Kids package data not loaded from database');
@@ -858,28 +846,6 @@ function initMobileSwipers() {
     const inKidsItems     = document.getElementById('kidsItemsInput');
     const kidsItemsDisplay = document.getElementById('kidsItemsDisplayInput');
 
-    const getCurrentKidsItems = () => {
-        if (inKidsItems?.value) {
-            try {
-                const parsed = JSON.parse(inKidsItems.value);
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (err) {
-                return [];
-            }
-        }
-        return window.editBooking?.kids_items || [];
-    };
-
-    const getCurrentKidsCount = () => {
-        const count = parseInt(inKidsCount?.value, 10);
-        if (Number.isFinite(count) && count >= 10) {
-            return count;
-        }
-        return (window.editBooking?.kids_count && window.editBooking.kids_count >= 10)
-            ? window.editBooking.kids_count
-            : 10;
-    };
-
     const modalSub = document.querySelector('.kids-modal-sub');
     if (modalSub) {
         modalSub.innerHTML = `$${KIDS_PRICE} per kid · Select 2 items · Minimum 10 kids`;
@@ -889,9 +855,9 @@ function initMobileSwipers() {
     let kSelected    = [];
     let kOrChoice    = null;
     let kOrOptions   = [];
-    let kCount       = getCurrentKidsCount();
+    let kCount       = 10;
     let kHasOr       = false;
-    let kConfirmed   = getCurrentKidsItems().length > 0;
+    let kConfirmed   = false;
 
     document.querySelectorAll('.select-btn, .select-btn-small').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -902,8 +868,6 @@ function initMobileSwipers() {
     });
 
     function openKidsModal() {
-        kCount = getCurrentKidsCount();
-        kConfirmed = getCurrentKidsItems().length > 0;
         buildChoiceList(kConfirmed);
         overlay.classList.add('kids-modal-active');
         document.body.style.overflow = 'hidden';
@@ -926,17 +890,15 @@ function initMobileSwipers() {
     function buildChoiceList(isEdit = false) {
         choiceList.innerHTML = '';
 
-        const savedKidsItems = getCurrentKidsItems();
-        const isSavedEdit = isEdit && savedKidsItems.length > 0;
-
-        kSelected = [];
-        kOrChoice = null;
-        kHasOr    = false;
+        if (!isEdit) {
+            kSelected = [];
+            kOrChoice = null;
+            kHasOr    = false;
+        }
 
         KIDS_ITEMS.forEach(item => {
             const options = item.label.split(' or ').map(s => s.trim()).filter(Boolean);
             const hasOr   = options.length > 1;
-            const savedMatch = isSavedEdit && options.some(opt => savedKidsItems.includes(opt));
 
             const card = document.createElement('div');
             card.className = 'kids-choice-card';
@@ -950,26 +912,13 @@ function initMobileSwipers() {
                 <div class="kcc-name">${options[0]}${hasOr ? ' or ' + options[1] : ''}</div>
             `;
 
-            if (savedMatch) {
+            if (isEdit && kSelected.includes(item.label)) {
                 card.classList.add('kcc-selected');
-                if (!kSelected.includes(item.label)) {
-                    kSelected.push(item.label);
-                }
             }
 
             card.addEventListener('click', () => toggleKidsItem(card));
             choiceList.appendChild(card);
         });
-
-        if (isSavedEdit && kSelected.length === 2) {
-            const orCard = KIDS_ITEMS.find(item => kSelected.includes(item.label) && item.label.includes(' or '));
-            if (orCard) {
-                const options = orCard.label.split(' or ').map(s => s.trim()).filter(Boolean);
-                kHasOr = true;
-                kOrOptions = options;
-                kOrChoice = options.find(opt => savedKidsItems.includes(opt)) || null;
-            }
-        }
 
         if (isEdit && kSelected.length >= 2) {
             document.querySelectorAll('.kids-choice-card').forEach(c => {
@@ -1215,7 +1164,11 @@ function initMobileSwipers() {
         // 6. Pre-select package (reconstruct group selections from saved item names)
         const pkgId  = eb.package_id;
         const pkgBtn = document.querySelector(`.select-btn[data-id="${pkgId}"]`);
-        
+        if (pkgBtn) {
+    setTimeout(() => {
+        pkgBtn.click();
+    }, 300);
+}
         if (pkgBtn && pkgId) {
             const allData = window.allPackagesData || [];
             const pkg     = allData.find(p => String(p.id) === String(pkgId));
@@ -1238,8 +1191,6 @@ function initMobileSwipers() {
                 document.getElementById('selectedPackageInput').value     = pkgId;
                 document.getElementById('packagePriceInput').value        = pkgBtn.dataset.price;
                 document.getElementById('selectedPackageIdInput').value   = pkgId;
-
-                window.editBookingSelections = selections;
 
                 // Highlight selected package button
                 packageButtons.forEach(btn => { btn.style.background = 'transparent'; btn.style.color = 'var(--accent-gold)'; });
@@ -1266,11 +1217,6 @@ function initMobileSwipers() {
         }
 
         // 8. Pre-select kids package
-        const bannerWrap      = document.getElementById('kidsBannerWrap');
-        const selectedBadge   = document.getElementById('kidsSelectedBadge');
-        const selectedBadgeTxt= document.getElementById('kidsSelectedBadgeText');
-        const kidsBanner      = document.getElementById('kidsBanner');
-
         if (eb.kids_package_id && eb.kids_count) {
             document.getElementById('kidsPackageIdInput').value  = eb.kids_package_id;
             document.getElementById('kidsCountInput').value      = eb.kids_count;
@@ -1279,17 +1225,16 @@ function initMobileSwipers() {
                 const kidsTotal = (window.kidsPackagePrice || 0) * eb.kids_count;
                 document.getElementById('kidsPackageTotalInput').value = kidsTotal.toFixed(2);
 
+                const bannerWrap      = document.getElementById('kidsBannerWrap');
+                const selectedBadge   = document.getElementById('kidsSelectedBadge');
+                const selectedBadgeTxt= document.getElementById('kidsSelectedBadgeText');
+                const kidsBanner      = document.getElementById('kidsBanner');
                 if (bannerWrap)       bannerWrap.style.display      = 'block';
                 if (selectedBadge)    selectedBadge.style.display   = 'flex';
                 if (kidsBanner)       kidsBanner.style.display      = 'none';
                 if (selectedBadgeTxt) selectedBadgeTxt.innerHTML    =
                     `<strong>Kids Package</strong> — ${eb.kids_count} kids · ${eb.kids_items.join(', ')}`;
             }
-        } else if (eb.package_id) {
-            // Show kids banner even if no kids package selected yet
-            if (bannerWrap)       bannerWrap.style.display = 'block';
-            if (kidsBanner)       kidsBanner.style.display = 'flex';
-            if (selectedBadge)    selectedBadge.style.display = 'none';
         }
 
         // 9. Refresh price display
