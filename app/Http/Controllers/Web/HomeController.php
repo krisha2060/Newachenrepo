@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Helpers\UrlEncryption;
 
 class HomeController extends Controller
 {
@@ -250,14 +251,21 @@ public function index1(Request $request)
         'addons'   => $addons
     ];
 
-    // ── EDIT MODE: load existing booking if ?edit=id is in URL ──────────────
+    // ── EDIT MODE: load existing booking if ?edit=encrypted_id is in URL ──────────────
     $editBooking = null;
     if ($request->filled('edit')) {
         if (!Auth::check()) {
             return redirect()->route('reservation');
         }
 
-        $editId = (int) $request->input('edit');
+        // Decrypt the ID from URL
+        $encryptedId = $request->input('edit');
+        $editId = UrlEncryption::decryptId($encryptedId);
+
+        if ($editId === null) {
+            return redirect()->route('reservation')->with('error', 'Invalid booking ID');
+        }
+
         $editOrder = Order::with([
             'package',
             'addonItems',
@@ -305,6 +313,8 @@ public function index1(Request $request)
                 'kids_package_id' => $editOrder->kids_package_id,
                 'kids_count'      => $editOrder->kids_count,
                 'kids_items'      => $kidsItems,
+                'order_status'    => $editOrder->order_status,
+                'delivery_charge' => (float) $editOrder->delivery_charge,
             ];
         }
     }

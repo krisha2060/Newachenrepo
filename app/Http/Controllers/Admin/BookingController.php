@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Helpers\UrlEncryption;
 use Illuminate\Http\Request;
 use App\Mail\BookingConfirmedMail;           
 use App\Mail\BookingCancelledMail; 
@@ -77,6 +78,7 @@ class BookingController extends Controller
             return [
                 'id'                 => $bookingId,
                 'db_id'              => $order->id,
+                'encrypted_db_id'    => UrlEncryption::encryptId($order->id),
                 'package_id'         => $order->package_id,
                 'client'             => $order->customer_name,
                 'email'              => $order->email,
@@ -254,7 +256,7 @@ if ($order->addonItems && $order->addonItems->count() > 0) {
         'kids_count' => $order->kids_count,
         'kids_price' => (float) $order->kids_package_total,
         'advance_amount' => (float) $order->advance_amount,
-        'remaining_amount' => (float) $order->remaining_amount + (float) $order->delivery_charge,
+        'remaining_amount' => (float) $order->remaining_amount,
         'delivery_charge' => (float) $order->delivery_charge,
         'created_at' => $order->created_at->format('M d, Y'),
     ];

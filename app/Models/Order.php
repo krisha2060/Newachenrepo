@@ -27,6 +27,7 @@ class Order extends Model
         'kids_package_id',
         'kids_count',
         'kids_package_total',
+        'delivery_charge'
     ];
     public function package()
     {

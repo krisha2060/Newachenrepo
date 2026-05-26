@@ -238,9 +238,25 @@ if (!window.editBooking) {
                 guestsInput.min = (packageId == 4) ? 25 : 15;
                 guestsInput.value = (packageId == 4) ? 25 : 15;
                 
-                packageButtons.forEach(btn => { btn.style.background = 'transparent'; btn.style.color = 'var(--accent-gold)'; });
-                clickedBtn.style.background = 'var(--accent-gold)';
-                clickedBtn.style.color      = 'var(--dark-bg)';
+                // Highlight selected package card
+                document.querySelectorAll('.package-item, .occasion-card').forEach(card => {
+                    card.classList.remove('selected-package');
+                    const badge = card.querySelector('.selected-badge');
+                    if (badge) badge.remove();
+                });
+                
+                const selectedCard = clickedBtn.closest('.package-item') || clickedBtn.closest('.occasion-card');
+                if (selectedCard) {
+                    selectedCard.classList.add('selected-package');
+                    
+                    // Add selected badge if not already present
+                    if (!selectedCard.querySelector('.selected-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'selected-badge';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i> Selected';
+                        selectedCard.insertBefore(badge, selectedCard.firstChild);
+                    }
+                }
 
                 updateTotalPrice();
 
@@ -726,17 +742,159 @@ if (guestsValue < minGuests || isNaN(guestsValue)) {
     });
 
     // ─── "OK, Place Order" / "OK, Update Order" → POST to backend ──────────
-    orvConfirmBtn.addEventListener('click', function () {
-        orvConfirmBtn.classList.add('orv-loading');
-        orvConfirmBtn.disabled = true;
+    // orvConfirmBtn.addEventListener('click', function () {
+    //     orvConfirmBtn.classList.add('orv-loading');
+    //     orvConfirmBtn.disabled = true;
 
+    //     const actionUrl = window.editBooking
+    //         ? (window.ORDER_UPDATE_BASE_URL || '') + `/${window.editBooking.db_id}/update`
+    //         : form.action;
+
+    //     fetch(actionUrl, {
+    //         method: 'POST',
+    //         body: new FormData(form),
+    //         headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    //     })
+    //     .then(r => r.json())
+    //     .then(res => {
+    //         if (res.success) {
+    //             closeReview();
+    //             const oldModal = document.getElementById('orderConfirmationModal');
+    //             if (oldModal) oldModal.style.display = 'none';
+
+    //             if (window.editBooking) {
+    //                 showToast('Booking updated successfully!', 'success', 2500);
+    //                 setTimeout(() => { window.location.href = window.ADMIN_DASHBOARD_URL || '/admin/dashboard'; }, 2200);
+    //             } else {
+    //                 showToast('Reservation confirmed! We\'ll be in touch soon.', 'success', 3500);
+    //                 setTimeout(() => location.reload(), 2800);
+    //             }
+    //         } else {
+    //             showToast(res.message || 'Failed to save data.', 'error');
+    //             orvConfirmBtn.classList.remove('orv-loading');
+    //             orvConfirmBtn.disabled = false;
+    //         }
+    //     })
+    //     .catch(err => {
+    //         console.error(err);
+    //         orvConfirmBtn.classList.remove('orv-loading');
+    //         orvConfirmBtn.disabled = false;
+    //         showToast('Something went wrong. Please try again.', 'error');
+    //     });
+    // });
+    
+
+    // ─── "OK, Place Order" / "OK, Update Order" → POST to backend ──────────
+
+    function showDeliveryChargePopup(title, oldCharge, onConfirm) {
+        const existing = document.getElementById('deliveryChargePopup');
+        if (existing) existing.remove();
+
+        const popup = document.createElement('div');
+        popup.id = 'deliveryChargePopup';
+        popup.style.cssText = `
+            position:fixed;inset:0;z-index:999999;
+            background:rgba(0,0,0,0.65);
+            display:flex;align-items:center;justify-content:center;
+        `;
+        popup.innerHTML = `
+            <div style="
+                background:#0f0f20;border:1px solid rgba(255,255,255,0.1);
+                border-radius:16px;padding:28px 24px;width:320px;
+                font-family:'DM Sans',sans-serif;box-shadow:0 16px 48px rgba(0,0,0,0.5);
+            ">
+                <div style="font-size:13px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:0.08em;color:#74ac43;margin-bottom:8px;">
+                    Delivery Charge
+                </div>
+                <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">
+                    ${title}
+                </div>
+                ${oldCharge > 0
+                    ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:16px;">Previous charge: $${oldCharge.toFixed(2)}</div>`
+                    : `<div style="margin-bottom:16px;"></div>`
+                }
+                <input id="dcPopupInput" type="number" min="0" step="0.01"
+                    placeholder="Enter delivery charge (e.g. 20)"
+                    style="
+                        width:100%;box-sizing:border-box;
+                        padding:11px 14px;border-radius:10px;
+                        border:1.5px solid rgba(255,255,255,0.15);
+                        background:rgba(255,255,255,0.06);
+                        color:#fff;font-size:15px;outline:none;
+                        margin-bottom:18px;
+                    "
+                />
+                <div style="display:flex;gap:10px;">
+                    <button id="dcPopupCancel" style="
+                        flex:1;padding:11px;border-radius:10px;
+                        border:1.5px solid rgba(255,255,255,0.15);
+                        background:transparent;color:rgba(255,255,255,0.55);
+                        font-size:14px;font-weight:600;cursor:pointer;
+                    ">Cancel</button>
+                    <button id="dcPopupConfirm" style="
+                        flex:1;padding:11px;border-radius:10px;
+                        border:none;background:#74ac43;
+                        color:#fff;font-size:14px;font-weight:700;cursor:pointer;
+                    ">Confirm</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+        document.getElementById('dcPopupInput').focus();
+
+        document.getElementById('dcPopupCancel').addEventListener('click', () => {
+            popup.remove();
+            orvConfirmBtn.classList.remove('orv-loading');
+            orvConfirmBtn.disabled = false;
+        });
+
+        document.getElementById('dcPopupConfirm').addEventListener('click', () => {
+            const val = parseFloat(document.getElementById('dcPopupInput').value);
+            if (isNaN(val) || val < 0) {
+                document.getElementById('dcPopupInput').style.border = '1.5px solid #dc3545';
+                return;
+            }
+            popup.remove();
+            onConfirm(val);
+        });
+    }
+
+    function detectDeliveryChange() {
+        if (!window.editBooking) return null;
+
+        const status = window.editBooking.order_status || 'Pending';
+        if (status === 'Pending') return null;
+
+        const oldType    = window.editBooking.delivery_type || 'pickup';
+        const oldAddress = (window.editBooking.delivery_address || '').trim().toLowerCase();
+        const oldCharge  = parseFloat(window.editBooking.delivery_charge || 0);
+
+        const newType    = (document.getElementById('deliveryTypeInput')?.value || 'pickup');
+        const newAddress = (document.getElementById('event_address')?.value || '').trim().toLowerCase();
+
+        const wasDelivery = oldType === 'delivery';
+        const isDelivery  = newType === 'delivery';
+
+        if (!wasDelivery && isDelivery)                              return { case: 1, oldCharge };
+        if (wasDelivery && !isDelivery)                              return { case: 2, oldCharge, newCharge: 0 };
+        if (wasDelivery && isDelivery && newAddress !== oldAddress)  return { case: 3, oldCharge };
+
+        return null;
+    }
+
+    function submitOrder(extraFields = {}) {
         const actionUrl = window.editBooking
             ? (window.ORDER_UPDATE_BASE_URL || '') + `/${window.editBooking.db_id}/update`
             : form.action;
 
+        const formData = new FormData(form);
+        Object.entries(extraFields).forEach(([k, v]) => formData.append(k, v));
+
         fetch(actionUrl, {
             method: 'POST',
-            body: new FormData(form),
+            body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(r => r.json())
@@ -765,8 +923,51 @@ if (guestsValue < minGuests || isNaN(guestsValue)) {
             orvConfirmBtn.disabled = false;
             showToast('Something went wrong. Please try again.', 'error');
         });
+    }
+
+    orvConfirmBtn.addEventListener('click', function () {
+        orvConfirmBtn.classList.add('orv-loading');
+        orvConfirmBtn.disabled = true;
+
+        const deliveryChange = detectDeliveryChange();
+
+        if (deliveryChange) {
+            if (deliveryChange.case === 1) {
+                showDeliveryChargePopup(
+                    'Enter delivery charge for this order',
+                    0,
+                    (newCharge) => {
+                        submitOrder({
+                            delivery_change_case: 1,
+                            new_delivery_charge:  newCharge,
+                            old_delivery_charge:  deliveryChange.oldCharge,
+                        });
+                    }
+                );
+            } else if (deliveryChange.case === 2) {
+                submitOrder({
+                    delivery_change_case: 2,
+                    new_delivery_charge:  0,
+                    old_delivery_charge:  deliveryChange.oldCharge,
+                });
+            } else if (deliveryChange.case === 3) {
+                showDeliveryChargePopup(
+                    'Enter new delivery charge for updated address',
+                    deliveryChange.oldCharge,
+                    (newCharge) => {
+                        submitOrder({
+                            delivery_change_case: 3,
+                            new_delivery_charge:  newCharge,
+                            old_delivery_charge:  deliveryChange.oldCharge,
+                        });
+                    }
+                );
+            }
+            return;
+        }
+
+        submitOrder();
     });
-    
 
 let pkgSwiper = null;
 let occSwiper = null;
@@ -1241,10 +1442,25 @@ function initMobileSwipers() {
 
                 window.editBookingSelections = selections;
 
-                // Highlight selected package button
-                packageButtons.forEach(btn => { btn.style.background = 'transparent'; btn.style.color = 'var(--accent-gold)'; });
-                pkgBtn.style.background = 'var(--accent-gold)';
-                pkgBtn.style.color      = 'var(--dark-bg)';
+                // Highlight selected package card
+                document.querySelectorAll('.package-item, .occasion-card').forEach(card => {
+                    card.classList.remove('selected-package');
+                    const badge = card.querySelector('.selected-badge');
+                    if (badge) badge.remove();
+                });
+                
+                const selectedCard = pkgBtn.closest('.package-item') || pkgBtn.closest('.occasion-card');
+                if (selectedCard) {
+                    selectedCard.classList.add('selected-package');
+                    
+                    // Add selected badge if not already present
+                    if (!selectedCard.querySelector('.selected-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'selected-badge';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i> Selected';
+                        selectedCard.insertBefore(badge, selectedCard.firstChild);
+                    }
+                }
             }
         }
 
@@ -1302,6 +1518,17 @@ function initMobileSwipers() {
         if (formSubtitle) formSubtitle.textContent = `Editing: ${eb.booking_id}`;
         const submitSpan = document.querySelector('.submit-btn span');
         if (submitSpan) submitSpan.textContent = 'Update Reservation';
+        // Hide hero section in edit mode
+        const heroSection = document.getElementById('reservationHeroo');
+        if (heroSection) heroSection.style.display = 'none';
+
+        // Update catering packages title
+        const cateringTitle = document.getElementById('cateringPackagesTitle');
+        if (cateringTitle) cateringTitle.textContent = `Editing Packages For "${eb.customer_name}"`;
+
+        const paragraph = document.getElementById('introtext');
+         if (paragraph) paragraph.style.display = 'none';
+
 
         // Scroll to package section so admin can verify / change
         setTimeout(() => {

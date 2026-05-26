@@ -255,7 +255,7 @@ function renderTable(data) {
       <td><span class="row-badge ${sc}">${b.status}</span></td>
       <td onclick="event.stopPropagation()"><div class="row-actions">
         <div class="row-action-btn rab-view" title="View" onclick='openModal(bookings.find(x=>x.id=="${b.id}"))'><i class="bi bi-eye"></i></div>
-       <div class="row-action-btn rab-edit" title="Edit Reservation" onclick="window.location=RESERVATION_EDIT_URL+'?edit=${b.db_id}'"><i class="bi bi-pencil-square"></i></div>
+       <div class="row-action-btn rab-edit" title="Edit Reservation" onclick="window.location=RESERVATION_EDIT_URL+'?edit=${b.encrypted_db_id}'"><i class="bi bi-pencil-square"></i></div>
 
         <div class="row-action-btn rab-del" title="Delete" onclick='askDelete("${b.id}")'><i class="bi bi-trash3"></i></div>
       </div></td>
@@ -420,13 +420,14 @@ function openModal(b) {
   const btnDelivered = document.getElementById('btnMarkDelivered');
 
   //neww
- const btnEdit = document.getElementById('btnEditBooking');
+  const btnEdit = document.getElementById('btnEditBooking');
 
   btnEdit.style.display = 'inline-flex';
 
   btnEdit.onclick = function () {
-  window.location = RESERVATION_EDIT_URL + '?edit=' + b.db_id;
-};
+    window.location = RESERVATION_EDIT_URL + '?edit=' + b.encrypted_db_id;
+
+  };
 
   // Send Info: only for Pending
   btnSendInfo.style.display = b.status === 'Pending' ? 'flex' : 'none';
@@ -458,13 +459,33 @@ function actionSendInfo() {
   const b = bookings.find(x => x.id === currentBookingId);
   if (!b) return;
 
-  if (sendInfoStep === 'idle') {
-    sendInfoStep = 'awaiting-delivery';
-    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
-    const panel = document.getElementById('sendInfoPanel');
+  // if (sendInfoStep === 'idle') {
+  //   sendInfoStep = 'awaiting-delivery';
+  //   const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+  //   const panel = document.getElementById('sendInfoPanel');
 
-    // hide delivery input if self pickup
-    document.getElementById('sendInfoDeliveryInput').parentElement.style.display = isDelivery ? 'block' : 'none';
+  //   // hide delivery input if self pickup
+  //   document.getElementById('sendInfoDeliveryInput').parentElement.style.display = isDelivery ? 'block' : 'none';
+  //   panel.style.display = 'block';
+  //   document.getElementById('sendInfoBtnLabel').textContent = 'Send WhatsApp Now';
+  //   document.querySelector('#ctModal').scrollTop = 9999;
+  //   return;
+  // }
+
+  if (sendInfoStep === 'idle') {
+    const isDelivery = b.venue && b.venue.trim().toLowerCase() !== 'self pickup';
+
+    if (!isDelivery) {
+      // Self Pickup: skip panel, go straight to WhatsApp step
+      sendInfoStep = 'awaiting-delivery';
+      actionSendInfo();
+      return;
+    }
+
+    // Delivery: show panel with delivery charge input
+    sendInfoStep = 'awaiting-delivery';
+    const panel = document.getElementById('sendInfoPanel');
+    document.getElementById('sendInfoDeliveryInput').parentElement.style.display = 'block';
     panel.style.display = 'block';
     document.getElementById('sendInfoBtnLabel').textContent = 'Send WhatsApp Now';
     document.querySelector('#ctModal').scrollTop = 9999;
@@ -484,6 +505,7 @@ function actionSendInfo() {
     const foodTotal = b.amountRaw || 0;
     const subTotal = isDelivery ? (foodTotal + deliveryCharge) : foodTotal;
 
+    
     // build booking details lines
     const foodItems = [
       ...(b.menu1 || []),
@@ -766,7 +788,8 @@ function actionPaymentDone() {
       ? parseFloat(b.remaining_amount)
       : subtotal;
 
-    currentRemaining = currentRemaining <= 0 ? 0 : currentRemaining;
+    // currentRemaining = currentRemaining <= 0 ? 0 : currentRemaining;
+    currentRemaining = currentRemaining ;
     document.getElementById('remainingAmountInput').value = currentRemaining;
     document.getElementById('remainingBreakdown').innerHTML =
       `<i class="bi bi-info-circle"></i> Current remaining: <strong> ${Number(currentRemaining).toLocaleString()}</strong>. `;

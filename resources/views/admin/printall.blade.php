@@ -232,8 +232,11 @@
             window.location.href = `/admin/export-excel?from=${from}&to=${to}${ids ? '&ids=' + ids : ''}`;
         }
   
-    window.onload = function() {
+        window.onload = function() {
         window.print();
+    };
+       window.onafterprint = function() {
+        window.close();
     };
 </script>
 </body>

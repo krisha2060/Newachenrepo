@@ -218,6 +218,9 @@ class OrderController extends Controller
             'kids_package_id'     => 'nullable|exists:packages,id',
             'kids_count'          => 'nullable|integer|min:10',
             'kids_items'          => 'nullable|string',
+            'delivery_change_case'  => 'nullable|integer|in:1,2,3',
+            'new_delivery_charge'   => 'nullable|numeric|min:0',
+            'old_delivery_charge'   => 'nullable|numeric|min:0',
         ]);
 
         $order = Order::findOrFail($id);
@@ -317,12 +320,73 @@ class OrderController extends Controller
             }
 
             // Update totals
+      // Update totals
             $grandTotal = $packageTotal + $addonTotal + ($kidsPackageTotal ?? 0);
-            $order->update([
-                'addon_total'      => $addonTotal,
-                'grand_total'      => $grandTotal,
-                'remaining_amount' => $grandTotal,
-            ]);
+
+            $deliveryChangeCase = $request->filled('delivery_change_case') ? (int) $request->delivery_change_case : null;
+            $newDeliveryCharge  = $request->filled('new_delivery_charge')  ? (float) $request->new_delivery_charge : null;
+            $oldDeliveryCharge  = $request->filled('old_delivery_charge')  ? (float) $request->old_delivery_charge : 0.0;
+            $currentStatus      = $order->order_status;
+
+            if ($deliveryChangeCase !== null && $newDeliveryCharge !== null) {
+
+                if ($currentStatus === 'Pending') {
+                    $order->update([
+                        'addon_total'      => $addonTotal,
+                        'grand_total'      => $grandTotal,
+                        'remaining_amount' => $grandTotal,
+                    ]);
+
+                } elseif ($currentStatus === 'Info Sent') {
+                    // delivery_charge updated, remaining untouched (confirm step adds it later)
+                    $order->update([
+                        'addon_total'      => $addonTotal,
+                        'grand_total'      => $grandTotal,
+                        'remaining_amount' => $grandTotal,
+                        'delivery_charge'  => $newDeliveryCharge,
+                    ]);
+
+                } else {
+                    // Confirmed / Reminder Sent / Payment Done / Delivered
+                    $existingRemaining = (float) $order->remaining_amount;
+
+                    if ($deliveryChangeCase === 1) {
+                        $newRemaining = $existingRemaining + $newDeliveryCharge;
+                    } elseif ($deliveryChangeCase === 2) {
+                        $newRemaining =  $existingRemaining - $oldDeliveryCharge;
+                    } else {
+                        $newRemaining = $existingRemaining - $oldDeliveryCharge + $newDeliveryCharge;
+                    }
+
+                    $order->update([
+                        'addon_total'      => $addonTotal,
+                        'grand_total'      => $grandTotal,
+                        'remaining_amount' => $newRemaining,
+                        'delivery_charge'  => $newDeliveryCharge,
+                    ]);
+                }
+
+            } else {
+                // No delivery change
+                if ($currentStatus === 'Pending') {
+                    $order->update([
+                        'addon_total'      => $addonTotal,
+                        'grand_total'      => $grandTotal,
+                        'remaining_amount' => $grandTotal,
+                    ]);
+                } else {
+                    $oldGrandTotal     = (float) $order->grand_total;
+                    $existingRemaining = (float) $order->remaining_amount;
+                    $grandTotalDelta   = $grandTotal - $oldGrandTotal;
+                    $newRemaining      = $existingRemaining + $grandTotalDelta;
+
+                    $order->update([
+                        'addon_total'      => $addonTotal,
+                        'grand_total'      => $grandTotal,
+                        'remaining_amount' => $newRemaining,
+                    ]);
+                }
+            }
         });
 
         return response()->json([

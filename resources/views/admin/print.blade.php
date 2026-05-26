@@ -152,7 +152,7 @@
                         <span>${{ number_format($booking['advance_amount'], 2) }}</span>
                     </div>
                     @endif
-                    @if(isset($booking['remaining_amount']) && $booking['remaining_amount'] > 0)
+                    @if(isset($booking['remaining_amount']) && $booking['remaining_amount'] > 0  && $booking['advance_amount'] > 0)
                     <div style="display:flex; justify-content:space-between; margin-top:5px;">
                         <strong>Remaining Balance: </strong>
                         <span>${{ number_format($booking['remaining_amount'], 2) }}</span>
@@ -297,8 +297,11 @@
     </div>
     <script>
     
-    window.onload = function() {
+        window.onload = function() {
         window.print();
+    };
+        window.onafterprint = function() {
+        window.close();
     };
 </script>
 </body>

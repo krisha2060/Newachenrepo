@@ -1802,7 +1802,7 @@
 
 
 
-         .reservation-hero {
+        .reservation-hero {
         position: relative;
         height: 85vh;
         min-height: 600px;
@@ -2253,6 +2253,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 15px;
+        margin-top: 10px;
     }
 
     .occasion-header h4 {
@@ -2699,7 +2700,7 @@
     width: 280px;
   }
 
-/*added these two*/
+
      .reservation-hero {
        
         margin-top: 0px !important;

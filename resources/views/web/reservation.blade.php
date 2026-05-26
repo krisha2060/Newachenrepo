@@ -2,7 +2,7 @@
 @section('content')
 
 <!-- Hero Section -->
-<section class="reservation-hero">
+<section class="reservation-hero" id="reservationHeroo">
     <div class="hero-overlay"></div>
     <div class="container">
         <div class="hero-content">
@@ -25,8 +25,8 @@
         <div class="packages-wrapper" id="cateringSection" style="display: none;">
             <div class="section-intro">
                 <span class="subtitle">For Special Occasions</span>
-                <h2>Catering Packages</h2>
-                <p class="intro-text">Curated menus for gatherings of 15 or more guests. (For Package 4 minimum 25 guests)</p>
+                <h2 id="cateringPackagesTitle">Catering Packages</h2>
+                <p class="intro-text" id="introtext">Curated menus for gatherings of 15 or more guests. (For Package 4 minimum 25 guests)</p>
             </div>
 
             <!-- Main Packages -->
@@ -876,6 +876,47 @@
 
 .mn-addon-price {
     white-space: nowrap;
+}
+
+/* ── Selected Package Styles ───────────────────── */
+.package-item.selected-package,
+.occasion-card.selected-package {
+    border: 1px solid #74ac43c2 !important;
+    background: linear-gradient(135deg, rgba(53, 80, 30, 0.55) 0%, rgba(59, 88, 34, 0.27) 100%) !important;
+    box-shadow: 0 0 20px rgba(116, 172, 67, 0.3) !important;
+}
+
+.selected-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #74ac43;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.selected-badge i {
+    font-size: 14px;
+}
+
+.package-item.selected-package .select-btn,
+.occasion-card.selected-package .select-btn {
+    background: #74ac43 !important;
+    color: white !important;
+    border-color: #74ac43 !important;
+}
+
+.package-item.selected-package .select-btn:hover,
+.occasion-card.selected-package .select-btn:hover {
+    background: #74ac43 !important;
+    border-color: #74ac43 !important;
 }
 </style>
 
